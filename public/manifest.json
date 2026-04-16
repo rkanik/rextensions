@@ -1,17 +1,17 @@
 {
-  "name": "Extension Manager",
+  "name": "Rextensions",
   "description": "Manage and sync your Chrome extensions across browsers",
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": ["management", "tabs", "storage"],
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "Icon 128x128.png"
+    "default_icon": "logo.png"
   },
   "background": {
     "service_worker": "background.js"
   },
   "icons": {
-    "128": "Icon 128x128.png"
+    "128": "logo.png"
   }
 }
