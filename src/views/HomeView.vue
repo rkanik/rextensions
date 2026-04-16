@@ -187,7 +187,7 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between flex-none px-4 pt-4 dark:bg-neutral-900">
       <div class="flex items-center gap-2">
-        <img src="/logo3.png" alt="Rextensions" class="w-6 h-6" />
+        <img src="/logo.png" alt="Rextensions" class="w-6 h-6" />
         <h1 class="text-base font-semibold">Rextensions</h1>
       </div>
 
