@@ -183,10 +183,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-gray-50 flex-1 flex flex-col dark:bg-neutral-900 overflow-hidden">
+  <div class="flex flex-col flex-1 overflow-hidden bg-gray-50 dark:bg-neutral-900">
     <!-- Header -->
-    <div class="px-4 flex justify-between items-center dark:bg-neutral-900 pt-4 flex-none">
-      <h1 class="text-base font-semibold">Extensions</h1>
+    <div class="flex items-center justify-between flex-none px-4 pt-4 dark:bg-neutral-900">
+      <div class="flex items-center gap-2">
+        <img src="/logo3.png" alt="Rextensions" class="w-6 h-6" />
+        <h1 class="text-base font-semibold">Rextensions</h1>
+      </div>
 
       <!-- Action Buttons -->
       <div class="flex">
@@ -208,7 +211,7 @@ onMounted(() => {
     </div>
 
     <!-- Status Messages -->
-    <!-- <div class="px-4 flex-none mt-2">
+    <!-- <div class="flex-none px-4 mt-2">
       <div
         v-if="status"
         :class="[
@@ -223,16 +226,16 @@ onMounted(() => {
     </div> -->
 
     <!-- Search -->
-    <div class="px-4 mt-2 flex-none">
+    <div class="flex-none px-4 mt-2">
       <input
         v-model="searchQuery"
         type="text"
         placeholder="Search extensions..."
-        class="w-full p-3 border border-gray-300 dark:border-neutral-800 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full p-3 mb-4 border border-gray-300 rounded-lg dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
     </div>
 
-    <div class="overflow-y-auto flex flex-col gap-4 px-4 flex-1 pb-8">
+    <div class="flex flex-col flex-1 gap-4 px-4 pb-8 overflow-y-auto">
       <!-- Enabled Extensions -->
       <div v-if="groupedLocalExtensions['Enabled']?.length">
         <div class="text-sm font-semibold">Enabled</div>
@@ -268,10 +271,10 @@ onMounted(() => {
       <div v-for="(item, index) in filteredRemoteExtensions" :key="index">
         <div class="flex justify-between gap-2">
           <div
-            class="w-2 h-2 flex-none self-center rounded-full"
+            class="self-center flex-none w-2 h-2 rounded-full"
             :style="{ backgroundColor: item.color }"
           />
-          <div class="flex-1 overflow-hidden flex flex-col">
+          <div class="flex flex-col flex-1 overflow-hidden">
             <div class="text-sm font-semibold truncate">
               {{ item.file.name }}
             </div>
@@ -300,9 +303,9 @@ onMounted(() => {
       <!-- Empty State -->
       <div
         v-if="!filteredLocalExtensions.length && !filteredRemoteExtensions.length"
-        class="text-center py-8"
+        class="py-8 text-center"
       >
-        <div class="text-sm font-medium mb-2">No extensions found</div>
+        <div class="mb-2 text-sm font-medium">No extensions found</div>
         <p class="text-xs text-muted-foreground">
           {{
             searchQuery
