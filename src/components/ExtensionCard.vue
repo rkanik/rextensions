@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { TExtension } from '@/types'
-
 const props = defineProps<{
   isLocal?: boolean
   extension: TExtension
