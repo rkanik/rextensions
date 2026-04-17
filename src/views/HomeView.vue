@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { TExtension } from '@/types'
 import { toast } from 'vue-sonner'
 
 const searchQuery = ref('')
