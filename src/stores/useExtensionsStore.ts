@@ -1,4 +1,3 @@
-import type { TExtension, TRemoteExtensions } from '@/types'
 import tColors from 'tailwindcss/colors'
 import { toast } from 'vue-sonner'
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore'
