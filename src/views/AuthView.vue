@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { useAuthState } from '@/stores/useAuthStore'
 import { auth } from '@/utils/firebase'
 import {
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   updateProfile,
-  type User,
 } from 'firebase/auth'
 import { toast } from 'vue-sonner'
 
@@ -14,14 +13,14 @@ const router = useRouter()
 
 const mode = ref<'signin' | 'signup'>('signin')
 const loading = ref(false)
-const firebaseUser = ref<User | null>(null)
 
 const name = ref('')
 const email = ref('')
 const password = ref('')
-let unsubscribeAuth: (() => void) | undefined
 
 const isSignUp = computed(() => mode.value === 'signup')
+
+const { user } = useAuthState()
 
 const toggleMode = () => {
   mode.value = isSignUp.value ? 'signin' : 'signup'
@@ -47,13 +46,17 @@ const onSubmit = async () => {
   loading.value = true
   try {
     if (isSignUp.value) {
-      const cred = await createUserWithEmailAndPassword(auth, email.value.trim(), password.value)
-      await updateProfile(cred.user, {
-        displayName: name.value.trim(),
-      })
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email.value.trim(),
+        password.value,
+      )
+      await updateProfile(response.user, { displayName: name.value.trim() })
+      user.value = response.user
       toast.success('Account created successfully')
     } else {
-      await signInWithEmailAndPassword(auth, email.value.trim(), password.value)
+      const response = await signInWithEmailAndPassword(auth, email.value.trim(), password.value)
+      user.value = response.user
       toast.success('Signed in successfully')
     }
 
@@ -64,22 +67,6 @@ const onSubmit = async () => {
     loading.value = false
   }
 }
-
-const openPopupAuthPageInTab = () => {
-  chrome.tabs.create({
-    url: chrome.runtime.getURL('popup.html#/'),
-  })
-}
-
-onMounted(() => {
-  unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-    firebaseUser.value = user
-  })
-})
-
-onUnmounted(() => {
-  unsubscribeAuth?.()
-})
 </script>
 
 <template>
@@ -132,10 +119,6 @@ onUnmounted(() => {
           {{ loading ? 'Please wait...' : isSignUp ? 'Create account' : 'Sign in' }}
         </Button>
       </form>
-    </div>
-
-    <div class="mt-3 text-xs text-muted-foreground" v-if="firebaseUser?.email">
-      Signed in as {{ firebaseUser.email }}
     </div>
   </div>
 </template>

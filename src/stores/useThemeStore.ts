@@ -11,7 +11,6 @@ export const useThemeStore = defineStore('theme', () => {
 
   onMounted(() => {
     chrome.storage.local.get('theme', (result) => {
-      console.log(result)
       theme.value = result.theme || 'light'
     })
   })
@@ -28,6 +27,6 @@ export const useThemeStore = defineStore('theme', () => {
   }
 })
 
-export const useThemeStoreState = () => {
+export const useThemeState = () => {
   return storeToRefs(useThemeStore())
 }

@@ -124,10 +124,6 @@ export const useRemoteExtensions = () => {
     })
   })
 
-  watchEffect(() => {
-    console.log('remoteExtensions', remoteExtensions.value)
-  })
-
   return {
     remoteExtensions,
     deleteRemoteExtensions,

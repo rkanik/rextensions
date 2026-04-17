@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { TExtension } from '@/types'
 
-import { auth } from '@/utils/firebase'
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth'
-import { useThemeStore, useThemeStoreState } from '@/stores/useThemeStore'
+import { useThemeStore, useThemeState } from '@/stores/useThemeStore'
 
 import LucideSun from '~icons/lucide/sun'
 import LucideMoonStar from '~icons/lucide/moon-star'
@@ -17,8 +15,12 @@ import { $d } from '@/utils/dayjs'
 import { toast } from 'vue-sonner'
 import { groupBy } from '@/utils/groupBy'
 import { initial } from '@/utils/initial'
+import { useAuthState, useAuthStore } from '@/stores/useAuthStore'
 
-const { isDark } = useThemeStoreState()
+const { user } = useAuthState()
+const { onSignOut } = useAuthStore()
+
+const { isDark } = useThemeState()
 const { toggleTheme } = useThemeStore()
 
 const searchQuery = ref('')
@@ -160,21 +162,7 @@ const exportExtensions = async () => {
   }
 }
 
-const firebaseUser = ref<User | null>(null)
-let unsubscribeAuth: (() => void) | undefined
-
 const router = useRouter()
-
-const onSignOut = async () => {
-  try {
-    await signOut(auth)
-    toast.success('Signed out')
-  } catch (error) {
-    toast.error(error instanceof Error ? error.message : 'Sign out failed')
-  }
-}
-
-const remoteKey = 'remoteExtensions'
 
 const onImportExtensions = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -184,27 +172,9 @@ const onImportExtensions = (event: Event) => {
 }
 
 onMounted(() => {
-  unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-    firebaseUser.value = user
-  })
-
   chrome.management.getAll((extensions) => {
     localExtensions.value = extensions as TExtension[]
   })
-  chrome.storage.local.get([remoteKey], (result) => {
-    if (result[remoteKey]) {
-      try {
-        const data = JSON.parse(result[remoteKey])
-        if (Array.isArray(data)) remoteExtensions.value = data
-      } catch (error) {
-        console.error('Error parsing remote extensions', error)
-      }
-    }
-  })
-})
-
-onUnmounted(() => {
-  unsubscribeAuth?.()
 })
 </script>
 
@@ -226,22 +196,22 @@ onUnmounted(() => {
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <IconButton tooltip="Menu">
-              <Avatar v-if="firebaseUser" class="size-9">
+              <Avatar v-if="user" class="size-9">
                 <!-- <AvatarImage :src="firebaseUser.photoURL" /> -->
-                <AvatarFallback>{{ initial(firebaseUser.displayName) }}</AvatarFallback>
+                <AvatarFallback>{{ initial(user.displayName) }}</AvatarFallback>
               </Avatar>
               <LucideMenu v-else class="w-4 h-4" />
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent class="w-56" align="start">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuItem v-if="firebaseUser">
+            <DropdownMenuItem v-if="user">
               <Avatar>
-                <AvatarFallback>{{ initial(firebaseUser.displayName) }}</AvatarFallback>
+                <AvatarFallback>{{ initial(user.displayName) }}</AvatarFallback>
               </Avatar>
               <div>
-                <div>{{ firebaseUser.displayName }}</div>
-                <div class="text-xs text-muted-foreground">{{ firebaseUser.email }}</div>
+                <div>{{ user.displayName }}</div>
+                <div class="text-xs text-muted-foreground">{{ user.email }}</div>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem v-else @click="router.push('/auth')">Sign In</DropdownMenuItem>
@@ -266,8 +236,8 @@ onUnmounted(() => {
                 Manage Extensions
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator v-if="firebaseUser" />
-            <DropdownMenuItem v-if="firebaseUser" @click="onSignOut"> Log out </DropdownMenuItem>
+            <DropdownMenuSeparator v-if="user" />
+            <DropdownMenuItem v-if="user" @click="onSignOut"> Log out </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
