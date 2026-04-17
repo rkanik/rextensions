@@ -16,6 +16,9 @@ import { toast } from 'vue-sonner'
 import { groupBy } from '@/utils/groupBy'
 import { initial } from '@/utils/initial'
 import { useAuthState, useAuthStore } from '@/stores/useAuthStore'
+import { urlToBase64 } from '@/utils/urlToBase64'
+import LucideLogOut from '~icons/lucide/log-out'
+import { useExtensionsStore } from '@/stores/useExtensionsStore'
 
 const { user } = useAuthState()
 const { onSignOut } = useAuthStore()
@@ -27,6 +30,8 @@ const searchQuery = ref('')
 
 const localExtensions = ref<TExtension[]>([])
 const { remoteExtensions, importRemoteExtensions, deleteRemoteExtensions } = useRemoteExtensions()
+
+const { onBackup, onRestore } = useExtensionsStore()
 
 const filter = (item: TExtension) => {
   return (
@@ -98,34 +103,6 @@ const onInstallExtension = async (extension: TExtension) => {
   })
 }
 
-const toBase64 = (url: string): Promise<string | undefined> => {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'Anonymous'
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const ctx = canvas.getContext('2d')
-      if (!ctx) {
-        resolve(undefined)
-        return
-      }
-      ctx.drawImage(img, 0, 0)
-      try {
-        const dataURL = canvas.toDataURL('image/png')
-        resolve(dataURL)
-      } catch {
-        resolve(undefined)
-      }
-    }
-    img.onerror = () => {
-      resolve(undefined)
-    }
-    img.src = url
-  })
-}
-
 const onOpenExtensions = () => {
   chrome.tabs.create({
     url: 'chrome://extensions/',
@@ -140,7 +117,7 @@ const exportExtensions = async () => {
         localExtensions.value.map(async (v) => {
           return {
             ...v,
-            icon: v.icons?.length ? await toBase64(v.icons[v.icons.length - 1].url) : undefined,
+            icon: v.icons?.length ? await urlToBase64(v.icons[v.icons.length - 1].url) : undefined,
           }
         }),
       ),
@@ -197,14 +174,13 @@ onMounted(() => {
           <DropdownMenuTrigger as-child>
             <IconButton tooltip="Menu">
               <Avatar v-if="user" class="size-9">
-                <!-- <AvatarImage :src="firebaseUser.photoURL" /> -->
                 <AvatarFallback>{{ initial(user.displayName) }}</AvatarFallback>
               </Avatar>
               <LucideMenu v-else class="w-4 h-4" />
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent class="w-56" align="start">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>Account</DropdownMenuLabel>
             <DropdownMenuItem v-if="user">
               <Avatar>
                 <AvatarFallback>{{ initial(user.displayName) }}</AvatarFallback>
@@ -215,6 +191,17 @@ onMounted(() => {
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem v-else @click="router.push('/auth')">Sign In</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem @click="onBackup">
+                <LucideShare2 />
+                <span>Backup</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem @click="onRestore">
+                <LucidePackagePlus />
+                <span>Restore</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem @click="exportExtensions">
@@ -237,7 +224,10 @@ onMounted(() => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator v-if="user" />
-            <DropdownMenuItem v-if="user" @click="onSignOut"> Log out </DropdownMenuItem>
+            <DropdownMenuItem v-if="user" @click="onSignOut">
+              <LucideLogOut />
+              <span>Sign Out</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
