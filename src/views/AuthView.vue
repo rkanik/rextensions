@@ -1,59 +1,75 @@
 <script setup lang="ts">
+import { FormField } from '@/components/ui/form'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth'
+import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
+import { z } from 'zod'
 
 const router = useRouter()
 
 const mode = ref<'signin' | 'signup'>('signin')
 const loading = ref(false)
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
-
 const isSignUp = computed(() => mode.value === 'signup')
 
-const { user } = useAuthState()
+const authFormSchema = z
+  .object({
+    name: z.string(),
+    email: z.string().min(1, 'Email is required').email('Enter a valid email'),
+    password: z.string().min(1, 'Password is required').min(6, 'At least 6 characters'),
+  })
+  .superRefine((data, ctx) => {
+    if (mode.value === 'signup' && !data.name?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Name is required',
+        path: ['name'],
+      })
+    }
+  })
+
+const validationSchema = toTypedSchema(authFormSchema)
+
+const { resetForm, values, handleSubmit } = useForm({
+  validationSchema,
+  initialValues: {
+    name: '',
+    email: '',
+    password: '',
+  },
+})
 
 const toggleMode = () => {
   mode.value = isSignUp.value ? 'signin' : 'signup'
-  password.value = ''
+  resetForm({
+    values: {
+      name: '',
+      email: values.email,
+      password: '',
+    },
+  })
 }
 
-const onSubmit = async () => {
-  if (!email.value.trim() || !password.value.trim()) {
-    toast.error('Email and password are required')
-    return
-  }
+type AuthFormValues = z.infer<typeof authFormSchema>
 
-  if (isSignUp.value && !name.value.trim()) {
-    toast.error('Name is required for sign up')
-    return
-  }
-
-  if (password.value.length < 6) {
-    toast.error('Password must be at least 6 characters')
-    return
-  }
-
+const onAuthSubmit = handleSubmit(async (formValues: AuthFormValues) => {
   loading.value = true
   try {
     if (isSignUp.value) {
       const response = await createUserWithEmailAndPassword(
         auth,
-        email.value.trim(),
-        password.value,
+        formValues.email.trim(),
+        formValues.password,
       )
-      await updateProfile(response.user, { displayName: name.value.trim() })
-      user.value = response.user
+      await updateProfile(response.user, { displayName: formValues.name.trim() })
       toast.success('Account created successfully')
     } else {
-      const response = await signInWithEmailAndPassword(auth, email.value.trim(), password.value)
-      user.value = response.user
+      await signInWithEmailAndPassword(auth, formValues.email.trim(), formValues.password)
       toast.success('Signed in successfully')
     }
 
@@ -63,7 +79,7 @@ const onSubmit = async () => {
   } finally {
     loading.value = false
   }
-}
+})
 </script>
 
 <template>
@@ -73,6 +89,7 @@ const onSubmit = async () => {
         {{ isSignUp ? 'Create account' : 'Sign in' }}
       </h1>
       <button
+        type="button"
         class="text-xs text-blue-600 hover:underline disabled:opacity-50"
         :disabled="loading"
         @click="toggleMode"
@@ -83,36 +100,53 @@ const onSubmit = async () => {
 
     <div class="p-4 mt-4 border border-gray-300 rounded-lg dark:border-neutral-800">
       <p class="text-xs text-muted-foreground">
-        Sign in to sync extension data across your browsers and profiles.
+        Optional: sign in for cloud backup and sync when you choose to use it.
       </p>
 
-      <form class="flex flex-col gap-3 mt-4" @submit.prevent="onSubmit">
-        <input
-          v-if="isSignUp"
-          v-model="name"
-          type="text"
-          placeholder="Full name"
-          autocomplete="name"
-          class="w-full p-3 border border-gray-300 rounded-lg dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          :disabled="loading"
-        />
-        <input
-          v-model="email"
-          type="email"
-          placeholder="Email"
-          autocomplete="email"
-          class="w-full p-3 border border-gray-300 rounded-lg dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          :disabled="loading"
-        />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-          autocomplete="current-password"
-          class="w-full p-3 border border-gray-300 rounded-lg dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          :disabled="loading"
-        />
-        <Button type="submit" :disabled="loading">
+      <form class="mt-4 space-y-4" @submit="onAuthSubmit">
+        <FormField v-slot="{ componentField }" name="name" :validate-on-model-update="false">
+          <FormItem v-show="isSignUp">
+            <FormLabel>Full Name</FormLabel>
+            <FormControl>
+              <Input autocomplete="name" :disabled="loading" v-bind="componentField" class="mt-2" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="email" :validate-on-model-update="false">
+          <FormItem>
+            <FormLabel>Email Address</FormLabel>
+            <FormControl>
+              <Input
+                type="email"
+                autocomplete="email"
+                :disabled="loading"
+                v-bind="componentField"
+                class="mt-2"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="password" :validate-on-model-update="false">
+          <FormItem>
+            <FormLabel>Password</FormLabel>
+            <FormControl>
+              <Input
+                type="password"
+                autocomplete="current-password"
+                :disabled="loading"
+                v-bind="componentField"
+                class="mt-2"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <Button type="submit" class="w-full" :disabled="loading">
           {{ loading ? 'Please wait...' : isSignUp ? 'Create account' : 'Sign in' }}
         </Button>
       </form>
