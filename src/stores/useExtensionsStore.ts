@@ -1,10 +1,7 @@
 import type { TExtension, TRemoteExtensions } from '@/types'
 import tColors from 'tailwindcss/colors'
-import { useAuthState } from './useAuthStore'
 import { toast } from 'vue-sonner'
-import { urlToBase64 } from '@/utils/urlToBase64'
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore'
-import { db } from '@/utils/firebase'
 
 const key = 'remoteExtensions'
 

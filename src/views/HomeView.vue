@@ -1,25 +1,6 @@
 <script setup lang="ts">
 import type { TExtension } from '@/types'
-
-import { useThemeStore, useThemeState } from '@/stores/useThemeStore'
-
-import LucideSun from '~icons/lucide/sun'
-import LucideMoonStar from '~icons/lucide/moon-star'
-import LucideShare2 from '~icons/lucide/share-2'
-import LucidePackagePlus from '~icons/lucide/package-plus'
-import LucideBlocks from '~icons/lucide/blocks'
-import LucideTrash2 from '~icons/lucide/trash-2'
-import LucideMenu from '~icons/lucide/menu'
-import { useRemoteExtensions } from '@/composables/useRemoteExtensions'
-import { $d } from '@/utils/dayjs'
 import { toast } from 'vue-sonner'
-import { groupBy } from '@/utils/groupBy'
-import { initial } from '@/utils/initial'
-import { useAuthState, useAuthStore } from '@/stores/useAuthStore'
-import { urlToBase64 } from '@/utils/urlToBase64'
-import LucideLogOut from '~icons/lucide/log-out'
-import { useExtensionsStore } from '@/stores/useExtensionsStore'
-import { LucideCloudDownload, LucideCloudUpload } from 'lucide-vue-next'
 
 const { user } = useAuthState()
 const { onSignOut } = useAuthStore()
@@ -149,6 +130,12 @@ const onImportExtensions = (event: Event) => {
   target.value = ''
 }
 
+const onOpenInNewTab = () => {
+  chrome.tabs.create({
+    url: 'popup.html',
+  })
+}
+
 onMounted(() => {
   chrome.management.getAll((extensions) => {
     localExtensions.value = extensions as TExtension[]
@@ -168,8 +155,8 @@ onMounted(() => {
       <!-- Action Buttons -->
       <div class="flex">
         <IconButton tooltip="Toggle Theme" @click="toggleTheme">
-          <LucideSun class="w-[18px] h-[18px]" v-if="isDark" />
-          <LucideMoonStar class="w-4 h-4" v-else />
+          <IconLucideSun class="w-[18px] h-[18px]" v-if="isDark" />
+          <IconLucideMoonStar class="w-4 h-4" v-else />
         </IconButton>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
@@ -177,7 +164,7 @@ onMounted(() => {
               <Avatar v-if="user" class="size-9">
                 <AvatarFallback>{{ initial(user.displayName) }}</AvatarFallback>
               </Avatar>
-              <LucideMenu v-else class="w-4 h-4" />
+              <IconLucideMenu v-else class="w-4 h-4" />
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent class="w-56" align="start">
@@ -195,22 +182,22 @@ onMounted(() => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem @click="onBackup">
-                <LucideCloudUpload />
+                <IconLucideCloudUpload />
                 <span>Backup</span>
               </DropdownMenuItem>
               <DropdownMenuItem @click="onRestore">
-                <LucideCloudDownload />
+                <IconLucideCloudDownload />
                 <span>Restore</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem @click="exportExtensions">
-                <LucideShare2 />
+                <IconLucideShare2 />
                 Export
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <LucidePackagePlus />
+                <IconLucidePackagePlus />
                 <span>Import</span>
                 <input
                   type="file"
@@ -220,13 +207,17 @@ onMounted(() => {
                 />
               </DropdownMenuItem>
               <DropdownMenuItem @click="onOpenExtensions">
-                <LucideBlocks />
+                <IconLucideBlocks />
                 Manage Extensions
+              </DropdownMenuItem>
+              <DropdownMenuItem @click="onOpenInNewTab">
+                <IconLucideExternalLink />
+                <span>Open in new tab</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator v-if="user" />
             <DropdownMenuItem v-if="user" @click="onSignOut">
-              <LucideLogOut />
+              <IconLucideLogOut />
               <span>Sign Out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -236,15 +227,10 @@ onMounted(() => {
 
     <!-- Search -->
     <div class="flex-none px-4 mt-2">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search extensions..."
-        class="w-full p-3 mb-4 border border-gray-300 rounded-lg dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
+      <Input v-model="searchQuery" placeholder="Search extensions..." />
     </div>
 
-    <div class="flex flex-col flex-1 gap-4 px-4 pb-8 overflow-y-auto">
+    <div class="flex flex-col flex-1 gap-4 px-4 pb-8 mt-4 overflow-y-auto">
       <!-- Enabled Extensions -->
       <div v-if="groupedLocalExtensions['Enabled']?.length">
         <div class="text-sm font-semibold">Enabled</div>

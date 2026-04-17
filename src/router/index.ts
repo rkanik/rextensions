@@ -14,4 +14,11 @@ const router = createRouter({
   ],
 })
 
+router.beforeEach((to, from, next) => {
+  chrome.storage.local.set({
+    lastPath: to.path,
+  })
+  return next()
+})
+
 export default router

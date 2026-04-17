@@ -1,4 +1,3 @@
-import { auth } from '@/utils/firebase'
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth'
 import { toast } from 'vue-sonner'
 
@@ -19,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
     unsubscribe.value = onAuthStateChanged(auth, (u) => {
       user.value = u
       chrome.storage.local.set({
-        user: u?.toJSON(),
+        user: u?.toJSON() ?? null,
       })
     })
     chrome.storage.local.get('user', (result) => {
