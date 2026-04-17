@@ -78,6 +78,7 @@ declare module 'vue' {
     IconLucidePackagePlus: typeof import('~icons/lucide/package-plus')['default']
     IconLucideShare2: typeof import('~icons/lucide/share2')['default']
     IconLucideSun: typeof import('~icons/lucide/sun')['default']
+    IconLucideTrash2: typeof import('~icons/lucide/trash2')['default']
     Input: typeof import('./components/ui/input/Input.vue')['default']
     Item: typeof import('./components/ui/item/Item.vue')['default']
     ItemActions: typeof import('./components/ui/item/ItemActions.vue')['default']

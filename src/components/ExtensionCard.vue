@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import type { TExtension } from '@/types'
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu'
 
 const props = defineProps<{
   isLocal?: boolean
@@ -33,10 +27,10 @@ const onClick = () => {
         <TooltipTrigger>
           <div
             :class="{ 'opacity-40': isLocal && !extension.enabled }"
-            class="rounded-lg p-3 border border-gray-200 hover:border-black cursor-pointer dark:border-neutral-800 dark:hover:border-neutral-500 relative"
+            class="relative p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-black dark:border-neutral-800 dark:hover:border-neutral-500"
             @click="onClick"
           >
-            <div class="absolute -top-1 right-1 flex gap-px">
+            <div class="absolute flex gap-px -top-1 right-1">
               <div
                 v-for="color in extension.colors"
                 :key="color"

@@ -64,18 +64,10 @@ const onSubmit = async () => {
     loading.value = false
   }
 }
-
-const onOpenPopupPage = () => {
-  chrome.tabs.create({
-    url: 'popup.html#/auth',
-  })
-}
 </script>
 
 <template>
   <div class="flex flex-col flex-1 p-4 bg-gray-50 dark:bg-neutral-900">
-    <RouterLink to="/">Home</RouterLink>
-    <Button @click="onOpenPopupPage">Open popup page asdas</Button>
     <div class="flex items-center justify-between">
       <h1 class="text-base font-semibold">
         {{ isSignUp ? 'Create account' : 'Sign in' }}
