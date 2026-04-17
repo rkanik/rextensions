@@ -19,6 +19,7 @@ import { useAuthState, useAuthStore } from '@/stores/useAuthStore'
 import { urlToBase64 } from '@/utils/urlToBase64'
 import LucideLogOut from '~icons/lucide/log-out'
 import { useExtensionsStore } from '@/stores/useExtensionsStore'
+import { LucideCloudDownload, LucideCloudUpload } from 'lucide-vue-next'
 
 const { user } = useAuthState()
 const { onSignOut } = useAuthStore()
@@ -194,11 +195,11 @@ onMounted(() => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem @click="onBackup">
-                <LucideShare2 />
+                <LucideCloudUpload />
                 <span>Backup</span>
               </DropdownMenuItem>
               <DropdownMenuItem @click="onRestore">
-                <LucidePackagePlus />
+                <LucideCloudDownload />
                 <span>Restore</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
