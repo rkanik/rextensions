@@ -1,13 +1,39 @@
-import { defineConfig } from 'vite'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Icons from 'unplugin-icons/vite'
 
-import { fileURLToPath, URL } from 'node:url'
+function injectChromeOAuthClientId(mode) {
+  return {
+    name: 'inject-chrome-oauth-client-id',
+    apply: 'build',
+    closeBundle() {
+      const manifestPath = path.resolve(process.cwd(), 'dist/manifest.json')
+      if (!fs.existsSync(manifestPath)) return
 
-export default defineConfig({
+      const env = loadEnv(mode, process.cwd(), '')
+      const clientId = env.VITE_CHROME_OAUTH_CLIENT_ID?.trim() ?? ''
+
+      if (!clientId) {
+        console.warn(
+          '\n[rextensions] VITE_CHROME_OAUTH_CLIENT_ID is missing. Google sign-in will fail until you set it in .env and rebuild.\n',
+        )
+      }
+
+      const raw = fs.readFileSync(manifestPath, 'utf8')
+      const next = raw.replace(/__INJECT_OAUTH_CLIENT_ID__/g, clientId)
+      fs.writeFileSync(manifestPath, next)
+    },
+  }
+}
+
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     tailwindcss(),
@@ -22,6 +48,7 @@ export default defineConfig({
     Icons({
       autoInstall: true,
     }),
+    injectChromeOAuthClientId(mode),
   ],
   publicDir: 'public',
   build: {
@@ -51,4 +78,4 @@ export default defineConfig({
     port: 3000,
     open: false,
   },
-})
+}))

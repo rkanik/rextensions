@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import type { TExtension } from '@/types'
 
+import { auth } from '@/utils/firebase'
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth'
 import { useThemeStore, useThemeStoreState } from '@/stores/useThemeStore'
 
 import LucideSun from '~icons/lucide/sun'
 import LucideMoonStar from '~icons/lucide/moon-star'
 import LucideShare2 from '~icons/lucide/share-2'
 import LucidePackagePlus from '~icons/lucide/package-plus'
-import LucideExternalLink from '~icons/lucide/external-link'
+import LucideBlocks from '~icons/lucide/blocks'
 import LucideTrash2 from '~icons/lucide/trash-2'
+import LucideMenu from '~icons/lucide/menu'
 import { useRemoteExtensions } from '@/composables/useRemoteExtensions'
 import { $d } from '@/utils/dayjs'
 import { toast } from 'vue-sonner'
 import { groupBy } from '@/utils/groupBy'
+import { initial } from '@/utils/initial'
 
 const { isDark } = useThemeStoreState()
 const { toggleTheme } = useThemeStore()
@@ -156,6 +160,20 @@ const exportExtensions = async () => {
   }
 }
 
+const firebaseUser = ref<User | null>(null)
+let unsubscribeAuth: (() => void) | undefined
+
+const router = useRouter()
+
+const onSignOut = async () => {
+  try {
+    await signOut(auth)
+    toast.success('Signed out')
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Sign out failed')
+  }
+}
+
 const remoteKey = 'remoteExtensions'
 
 const onImportExtensions = (event: Event) => {
@@ -166,6 +184,10 @@ const onImportExtensions = (event: Event) => {
 }
 
 onMounted(() => {
+  unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    firebaseUser.value = user
+  })
+
   chrome.management.getAll((extensions) => {
     localExtensions.value = extensions as TExtension[]
   })
@@ -180,6 +202,10 @@ onMounted(() => {
     }
   })
 })
+
+onUnmounted(() => {
+  unsubscribeAuth?.()
+})
 </script>
 
 <template>
@@ -193,37 +219,59 @@ onMounted(() => {
 
       <!-- Action Buttons -->
       <div class="flex">
-        <IconButton @click="onOpenExtensions" tooltip="Manage Extensions">
-          <LucideExternalLink class="w-4 h-4" />
-        </IconButton>
-        <IconButton tooltip="Export" @click="exportExtensions">
-          <LucideShare2 class="w-4 h-4" />
-        </IconButton>
-        <IconButton as="label" tooltip="Import">
-          <LucidePackagePlus class="w-[18px] h-[18px]" />
-          <input type="file" accept=".json" @change="onImportExtensions" class="hidden" />
-        </IconButton>
         <IconButton tooltip="Toggle Theme" @click="toggleTheme">
           <LucideSun class="w-[18px] h-[18px]" v-if="isDark" />
           <LucideMoonStar class="w-4 h-4" v-else />
         </IconButton>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <IconButton tooltip="Menu">
+              <Avatar v-if="firebaseUser" class="size-9">
+                <!-- <AvatarImage :src="firebaseUser.photoURL" /> -->
+                <AvatarFallback>{{ initial(firebaseUser.displayName) }}</AvatarFallback>
+              </Avatar>
+              <LucideMenu v-else class="w-4 h-4" />
+            </IconButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent class="w-56" align="start">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuItem v-if="firebaseUser">
+              <Avatar>
+                <AvatarFallback>{{ initial(firebaseUser.displayName) }}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div>{{ firebaseUser.displayName }}</div>
+                <div class="text-xs text-muted-foreground">{{ firebaseUser.email }}</div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem v-else @click="router.push('/auth')">Sign In</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem @click="exportExtensions">
+                <LucideShare2 />
+                Export
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LucidePackagePlus />
+                <span>Import</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  @change="onImportExtensions"
+                  class="absolute inset-0 opacity-0"
+                />
+              </DropdownMenuItem>
+              <DropdownMenuItem @click="onOpenExtensions">
+                <LucideBlocks />
+                Manage Extensions
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator v-if="firebaseUser" />
+            <DropdownMenuItem v-if="firebaseUser" @click="onSignOut"> Log out </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
-
-    <!-- Status Messages -->
-    <!-- <div class="flex-none px-4 mt-2">
-      <div
-        v-if="status"
-        :class="[
-          'p-3 rounded-lg mb-4 text-sm',
-          status.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : '',
-          status.type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : '',
-          status.type === 'info' ? 'bg-blue-100 text-blue-800 border border-blue-200' : '',
-        ]"
-      >
-        {{ status.message }}
-      </div>
-    </div> -->
 
     <!-- Search -->
     <div class="flex-none px-4 mt-2">
