@@ -8,8 +8,6 @@ dist/
 !public/
 
 # Environment files
-.env
-.env.local
 .env.*.local
 
 # Logs
@@ -19,7 +17,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Editor directories and files
-.vscode/
 .idea/
 *.suo
 *.ntvs*
@@ -35,3 +32,4 @@ pnpm-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+config.bat
