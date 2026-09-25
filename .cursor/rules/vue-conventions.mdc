@@ -1,0 +1,17 @@
+---
+description: Vue/Pinia/UI coding conventions for Rextensions
+globs: src/**/*.{vue,ts}
+alwaysApply: false
+---
+
+# Code conventions
+
+- Composition API + `<script setup lang="ts">`. Pinia setup stores (`defineStore(..., () => { ... })`).
+- Types live in `src/types.ts` (`TExtension`, `TRemoteExtensions`). Prefer those names.
+- UI primitives: shadcn-vue under `src/components/ui/` (New York style). App chrome: `src/layouts/AppLayout.vue`.
+- Toasts: `vue-sonner` (`toast.success` / `error` / `loading`).
+- Forms: vee-validate + zod (see `AuthView.vue`).
+- Icons: `unplugin-icons` with `Icon` prefix, or lucide via shadcn patterns.
+- Alias `@` → `src/`. Shared `cn()` helper: `src/lib/utils.ts`.
+- Keep store actions focused: `useExtensionsStore` owns chrome.management reads, JSON export/import, and Firestore `backups/{uid}` backup/restore.
+- Avoid editing generated `src/auto-imports.d.ts` / `src/components.d.ts` by hand unless regenerating via build.

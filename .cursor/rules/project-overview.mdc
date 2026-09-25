@@ -1,0 +1,40 @@
+---
+description: Rextensions product overview, stack, and key paths
+alwaysApply: false
+---
+# Rextensions
+
+Chrome MV3 popup extension: manage installed extensions, export/import lists, and cloud backup/restore via Firebase.
+
+## Stack
+
+- Vue 3 + TypeScript + Pinia + Vue Router (hash history for extension pages)
+- Vite 7 build → load **`dist/`** in Chrome (not repo root)
+- Tailwind 4 + shadcn-vue (Reka UI) under `src/components/ui/`
+- Firebase Auth + Firestore (`src/utils/firebase.ts`); Google via Chrome Identity (`src/utils/chromeGoogleAuth.ts`)
+
+## Commands
+
+- `npm run build` — production build
+- `npm run dev` — `vite build --watch` (reload extension in `chrome://extensions` after rebuild)
+- `npm run deploy` — `./deploy.sh` (build + load instructions)
+
+## Key paths
+
+| Path | Role |
+|------|------|
+| `public/manifest.json` | MV3 manifest; OAuth client id placeholder `__INJECT_OAUTH_CLIENT_ID__` |
+| `popup.html` / `src/popup.ts` | Popup entry |
+| `src/background.ts` | Service worker (management message handlers) |
+| `src/stores/useExtensionsStore.ts` | Local list, import/export, Firestore backup |
+| `src/stores/useAuthStore.ts` | Auth state + `chrome.storage.local` cache |
+| `src/views/HomeView.vue` / `AuthView.vue` | Main UI |
+| `vite.config.js` | Injects `VITE_CHROME_OAUTH_CLIENT_ID` into `dist/manifest.json` on build |
+
+## Env
+
+Copy `.env.example` → `.env`. Set `VITE_CHROME_OAUTH_CLIENT_ID` (Chrome extension OAuth client). Never commit `.env`.
+
+## Auto-imports
+
+`unplugin-auto-import` covers `vue` / `pinia` / `vue-router` plus `src/composables/**`, `src/stores/**`, `src/utils/**`. Prefer relying on auto-imports over redundant manual imports for those APIs.

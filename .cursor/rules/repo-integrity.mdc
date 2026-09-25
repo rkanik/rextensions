@@ -1,0 +1,15 @@
+---
+description: Supply-chain / git safety for this repo after remote compromise
+alwaysApply: false
+---
+# Repo integrity
+
+In Sep 2026, `origin/dev` tip `57cf216` was a rewritten fake of `auto import types` with obfuscated malware in `tailwind.config.js` and a fake font `fa-solid-400.woff2`, plus `.gitignore` changes that un-ignored `.env` / `.vscode`.
+
+## Agent rules
+
+- Prefer local history over unexpected remote rewrites with the same commit message but different tree/hash.
+- Never `git pull` / merge / checkout a diverged remote tip without comparing trees first (`git diff -w HEAD origin/<branch>`, inspect `tailwind.config.js`).
+- Reject configs that append obfuscated `_0x…` / `global['!']` payloads, or “font” files that are JS.
+- Keep `.env`, `.env.local`, and secrets gitignored. Do not weaken `.gitignore` for those paths.
+- To restore a known-good local branch onto GitHub: `git push --force-with-lease origin <branch>` only after confirming local tip is clean.

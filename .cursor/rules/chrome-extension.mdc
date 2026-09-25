@@ -1,0 +1,16 @@
+---
+description: Chrome MV3 extension constraints for Rextensions
+globs: public/manifest.json,src/background.ts,vite.config.js,src/utils/chromeGoogleAuth.ts,src/**/*.ts,src/**/*.vue
+alwaysApply: false
+---
+
+# Chrome extension rules
+
+- Manifest V3 only. Permissions in use: `management`, `tabs`, `storage`, `identity` plus Google host permissions for Auth.
+- Popup UI is fixed ~400×500 (`App.vue`). Prefer compact layouts.
+- Use `createWebHashHistory` — extension pages are not a normal HTTP origin.
+- Persist UI path / remote lists / user cache via `chrome.storage.local`, not `localStorage`.
+- Extension management: `chrome.management` (list, enable/disable, uninstall). Store links open via `tabs`.
+- Google sign-in: `chrome.identity.getAuthToken` → Firebase `signInWithCredential`. Rebuild after changing OAuth client id so Vite injects it into `dist/manifest.json`.
+- After code changes: rebuild, then click Reload on the unpacked extension in `chrome://extensions`.
+- Do not add Node-only APIs to popup/background runtime code. Keep secrets out of the repo; Firebase web config is public by design, but rotate keys if leaked with other credentials.
