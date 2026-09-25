@@ -4,6 +4,9 @@ import { collection, doc, getDoc, setDoc } from 'firebase/firestore'
 import z from 'zod'
 
 const key = 'remoteExtensions'
+const CLOUD_BACKUP_NAME = 'Cloud Backup'
+/** Leave headroom under Firestore's 1 MiB document limit. */
+const MAX_BACKUP_BYTES = 900_000
 
 const colors = Object.values(tColors)
   .filter((v) => typeof v === 'object')
@@ -29,90 +32,128 @@ const getRemoteExtensions = async () => {
         if (Array.isArray(data)) {
           return resolve(data)
         }
-      } catch {}
+      } catch {
+        // ignore corrupt storage
+      }
       resolve([])
     })
   })
 }
 
+const saveRemoteExtensions = async (items: TRemoteExtensions[]) => {
+  await chrome.storage.local.set({ [key]: JSON.stringify(items) })
+}
+
+const buildExtensionPayload = async (list: TExtension[], includeIcons: boolean) => {
+  return Promise.all(
+    list.map(async (v) => {
+      const base = { ...v }
+      if (!includeIcons) {
+        delete (base as { icon?: string }).icon
+        return base
+      }
+      return {
+        ...base,
+        icon: v.icons?.length ? await urlToBase64(v.icons[v.icons.length - 1].url) : undefined,
+      }
+    }),
+  )
+}
+
+const upsertRemoteItem = async (item: TRemoteExtensions) => {
+  const items = await getRemoteExtensions()
+  const index = items.findIndex((e) => e.file.name === item.file.name)
+  if (index !== -1) items[index] = item
+  else items.push(item)
+  await saveRemoteExtensions(items)
+  return items
+}
+
 export const useExtensionsStore = defineStore('extensions', () => {
-  //
   const extensions = ref<TExtension[]>([])
   const remoteExtensions = ref<TRemoteExtensions[]>([])
 
-  //
-  const { user } = useAuthState()
+  const { user, isSignedIn } = useAuthState()
 
   const onBackup = async () => {
-    if (!user.value) return toast.error('Please sign in to backup your extensions')
-    if (!extensions.value.length) return toast.error('No extensions to backup')
-
-    const data = {
-      exportedAt: Date.now(),
-      extensions: await Promise.all(
-        extensions.value.map(async (v) => {
-          return {
-            ...v,
-            icon: v.icons?.length ? await urlToBase64(v.icons[v.icons.length - 1].url) : undefined,
-          }
-        }),
-      ),
+    if (!isSignedIn.value || !user.value?.uid) {
+      return toast.error('Sign in with Google to backup your extensions')
+    }
+    if (!extensions.value.length) {
+      return toast.error('No extensions to backup')
     }
 
     const id = toast.loading('Backing up extensions...')
-    await setDoc(doc(collection(db, 'backups'), user.value.uid), data)
-    toast.dismiss(id)
-    toast.success('Extensions backed up successfully')
+    try {
+      let withIcons = true
+      let payloadExtensions = await buildExtensionPayload(extensions.value, true)
+      let data = { exportedAt: Date.now(), extensions: payloadExtensions }
+
+      if (new Blob([JSON.stringify(data)]).size > MAX_BACKUP_BYTES) {
+        withIcons = false
+        payloadExtensions = await buildExtensionPayload(extensions.value, false)
+        data = { exportedAt: Date.now(), extensions: payloadExtensions }
+      }
+
+      if (new Blob([JSON.stringify(data)]).size > MAX_BACKUP_BYTES) {
+        toast.dismiss(id)
+        return toast.error('Backup too large for cloud storage. Export JSON instead.')
+      }
+
+      await setDoc(doc(collection(db, 'backups'), user.value.uid), data)
+      toast.dismiss(id)
+      toast.success(
+        withIcons
+          ? 'Extensions backed up successfully'
+          : 'Extensions backed up (icons omitted to fit size limit)',
+      )
+    } catch (error) {
+      toast.dismiss(id)
+      toast.error(error instanceof Error ? error.message : 'Backup failed')
+    }
   }
 
   const onRestore = async () => {
-    if (!user.value) return toast.error('Please sign in to restore your extensions')
-    const id = toast.loading('Restoring extensions...')
-
-    const document = await getDoc(doc(collection(db, 'backups'), user.value.uid))
-    const data = document.data() as TRemoteExtensions | undefined
-    toast.dismiss(id)
-
-    if (!data) return toast.error('No backup found')
-
-    const item = {
-      file: {
-        name: 'Cloud Backup',
-        size: data.extensions.length,
-      },
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: data.extensions.length,
-      importedAt: Date.now(),
-      exportedAt: data.exportedAt,
-      extensions: data.extensions,
+    if (!isSignedIn.value || !user.value?.uid) {
+      return toast.error('Sign in with Google to restore your extensions')
     }
 
-    const items = await getRemoteExtensions()
+    const id = toast.loading('Restoring extension list...')
+    try {
+      const document = await getDoc(doc(collection(db, 'backups'), user.value.uid))
+      const data = document.data() as { exportedAt?: number; extensions?: TExtension[] } | undefined
 
-    const index = items.findIndex((e) => e.file.name === item.file.name)
-    if (index !== -1) items[index] = item
-    else items.push(item)
+      if (!data?.extensions?.length) {
+        toast.dismiss(id)
+        return toast.error('No cloud backup found')
+      }
 
-    remoteExtensions.value = items
-    chrome.storage.local.set({ [key]: JSON.stringify(items) })
+      const item: TRemoteExtensions = {
+        file: {
+          name: CLOUD_BACKUP_NAME,
+          size: data.extensions.length,
+        },
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: data.extensions.length,
+        importedAt: Date.now(),
+        exportedAt: data.exportedAt ?? Date.now(),
+        extensions: data.extensions,
+      }
 
-    toast.success('Extensions restored successfully')
+      remoteExtensions.value = await upsertRemoteItem(item)
+      toast.dismiss(id)
+      toast.success('Sync list restored. Use Open Store for missing extensions.')
+    } catch (error) {
+      toast.dismiss(id)
+      toast.error(error instanceof Error ? error.message : 'Restore failed')
+    }
   }
 
   const onExport = async () => {
     try {
       const data = {
         exportedAt: Date.now(),
-        extensions: await Promise.all(
-          extensions.value.map(async (v) => {
-            return {
-              ...v,
-              icon: v.icons?.length
-                ? await urlToBase64(v.icons[v.icons.length - 1].url)
-                : undefined,
-            }
-          }),
-        ),
+        extensions: await buildExtensionPayload(extensions.value, true),
       }
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: 'application/json',
@@ -157,17 +198,8 @@ export const useExtensionsStore = defineStore('extensions', () => {
         }
 
         const item = parsed.data as TRemoteExtensions
-        const items = await getRemoteExtensions()
-
-        const index = items.findIndex((e) => e.file.name === item.file.name)
-        if (index !== -1) items[index] = item
-        else items.push(item)
-
-        remoteExtensions.value = items
-        chrome.storage.local.set({ [key]: JSON.stringify(items) })
-        //
+        remoteExtensions.value = await upsertRemoteItem(item)
         toast.success('Extensions imported successfully')
-        //
       } catch (error) {
         toast.error(`Error: ${error instanceof Error ? error.message : 'parse error'}`)
       }
@@ -178,7 +210,7 @@ export const useExtensionsStore = defineStore('extensions', () => {
   const onDeleteRemoteExtensions = async (item: TRemoteExtensions) => {
     const items = await getRemoteExtensions()
     remoteExtensions.value = items.filter((e) => e.file.name !== item.file.name)
-    chrome.storage.local.set({ [key]: JSON.stringify(remoteExtensions.value) })
+    await saveRemoteExtensions(remoteExtensions.value)
   }
 
   onMounted(() => {

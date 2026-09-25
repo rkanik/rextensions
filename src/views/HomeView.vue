@@ -7,9 +7,9 @@ const { extensions, remoteExtensions } = useExtensionsState()
 const { onDeleteRemoteExtensions } = useExtensionsStore()
 
 const filter = (item: TExtension) => {
+  const q = searchQuery.value.toLowerCase()
   return (
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+    item.name.toLowerCase().includes(q) || (item.description?.toLowerCase().includes(q) ?? false)
   )
 }
 
@@ -36,10 +36,18 @@ const filteredRemoteExtensions = computed(() => {
     return {
       ...e,
       extensions: e.extensions
-        .filter((e) => !extensions.value.some((v) => v.id === e.id))
+        .filter((ext) => !extensions.value.some((v) => v.id === ext.id))
         .filter(filter),
     }
   })
+})
+
+const hasVisibleContent = computed(() => {
+  return (
+    filteredLocalExtensions.value.length > 0 ||
+    filteredRemoteExtensions.value.some((e) => e.extensions.length > 0) ||
+    (!searchQuery.value && remoteExtensions.value.length > 0)
+  )
 })
 
 const onToggleEnabled = async (extension: TExtension) => {
@@ -117,7 +125,11 @@ const onInstallExtension = async (extension: TExtension) => {
         </div>
       </div>
 
-      <div v-for="(item, index) in filteredRemoteExtensions" :key="index">
+      <div
+        v-for="(item, index) in filteredRemoteExtensions"
+        :key="index"
+        v-show="!searchQuery || item.extensions.length"
+      >
         <div class="flex justify-between gap-2">
           <div
             class="self-center flex-none w-2 h-2 rounded-full"
@@ -128,11 +140,16 @@ const onInstallExtension = async (extension: TExtension) => {
               {{ item.file.name }}
             </div>
             <div class="text-xs text-muted-foreground">
-              {{ $d(item.importedAt).fromNow() }}, {{ item.size }} extensions
+              Sync list · {{ $d(item.importedAt).fromNow() }} ·
+              {{
+                item.extensions.length
+                  ? `${item.extensions.length} not installed`
+                  : 'all installed'
+              }}
             </div>
           </div>
           <div class="flex-none">
-            <IconButton tooltip="Delete" @click="onDeleteRemoteExtensions(item)">
+            <IconButton tooltip="Delete sync list" @click="onDeleteRemoteExtensions(item)">
               <IconLucideTrash2 class="w-4 h-4" />
             </IconButton>
           </div>
@@ -150,16 +167,13 @@ const onInstallExtension = async (extension: TExtension) => {
       </div>
 
       <!-- Empty State -->
-      <div
-        v-if="!filteredLocalExtensions.length && !filteredRemoteExtensions.length"
-        class="py-8 text-center"
-      >
+      <div v-if="!hasVisibleContent" class="py-8 text-center">
         <div class="mb-2 text-sm font-medium">No extensions found</div>
         <p class="text-xs text-muted-foreground">
           {{
             searchQuery
               ? 'No extensions found matching your search'
-              : 'Install extensions to get started'
+              : 'Install extensions, or restore a cloud sync list after signing in'
           }}
         </p>
       </div>

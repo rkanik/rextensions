@@ -11,7 +11,7 @@ Chrome MV3 popup extension: manage installed extensions, export/import lists, an
 - Vue 3 + TypeScript + Pinia + Vue Router (hash history for extension pages)
 - Vite 7 build → load **`dist/`** in Chrome (not repo root)
 - Tailwind 4 + shadcn-vue (Reka UI) under `src/components/ui/`
-- Firebase Auth + Firestore (`src/utils/firebase.ts`); Google via Chrome Identity (`src/utils/chromeGoogleAuth.ts`)
+- Firebase Auth + Firestore (`src/utils/firebase.ts`); **Google-only** sign-in via Chrome Identity (`src/utils/chromeGoogleAuth.ts`)
 
 ## Commands
 

@@ -72,6 +72,7 @@ declare module 'vue' {
     IconLucideCloudDownload: typeof import('~icons/lucide/cloud-download')['default']
     IconLucideCloudUpload: typeof import('~icons/lucide/cloud-upload')['default']
     IconLucideExternalLink: typeof import('~icons/lucide/external-link')['default']
+    IconLucideLogIn: typeof import('~icons/lucide/log-in')['default']
     IconLucideLogOut: typeof import('~icons/lucide/log-out')['default']
     IconLucideMenu: typeof import('~icons/lucide/menu')['default']
     IconLucideMoonStar: typeof import('~icons/lucide/moon-star')['default']

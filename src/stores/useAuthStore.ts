@@ -1,13 +1,18 @@
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth'
+import { onAuthStateChanged, type User } from 'firebase/auth'
 import { toast } from 'vue-sonner'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const authReady = ref(false)
   const unsubscribe = ref<() => void | undefined>()
+
+  const isSignedIn = computed(() => !!user.value?.uid)
 
   const onSignOut = async () => {
     try {
-      await signOut(auth)
+      await signOutGoogleExtensionSession(auth)
+      user.value = null
+      chrome.storage.local.remove('user')
       toast.success('Signed out')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Sign out failed')
@@ -17,13 +22,12 @@ export const useAuthStore = defineStore('auth', () => {
   onMounted(() => {
     unsubscribe.value = onAuthStateChanged(auth, (u) => {
       user.value = u
-      chrome.storage.local.set({
-        user: u?.toJSON() ?? null,
-      })
-    })
-    chrome.storage.local.get('user', (result) => {
-      if (!result.user) return
-      user.value = result.user
+      authReady.value = true
+      if (u) {
+        chrome.storage.local.set({ user: u.toJSON() })
+      } else {
+        chrome.storage.local.remove('user')
+      }
     })
   })
 
@@ -33,6 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    authReady,
+    isSignedIn,
     onSignOut,
   }
 })
