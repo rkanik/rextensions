@@ -10,7 +10,7 @@ alwaysApply: false
 - Popup UI is fixed ~400×500 (`App.vue`). Prefer compact layouts.
 - Use `createWebHashHistory` — extension pages are not a normal HTTP origin.
 - Persist UI path / remote lists via `chrome.storage.local`, not `localStorage`.
-- Auth is Google-only: `chrome.identity.getAuthToken` → Firebase `signInWithCredential` (`chromeGoogleAuth.ts`). Rebuild after changing OAuth client id.
+- Auth is Google-only: prefer `chrome.identity.getAuthToken`, fall back to `launchWebAuthFlow` (Arc/Brave) → Firebase `signInWithCredential` (`chromeGoogleAuth.ts`). Needs both Chrome-extension and Web OAuth client IDs. Rebuild after changing either.
 - Backup/restore syncs an extension **list** (Open Store for missing); does not auto-install.
 - After code changes: `npm run build:extension`, then Reload unpacked from `apps/extension/dist`.
 - Do not add Node-only APIs to popup/background runtime code.

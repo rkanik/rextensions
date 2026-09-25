@@ -25,6 +25,7 @@ declare global {
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const getGoogleAccessTokenFromChrome: typeof import('./utils/chromeGoogleAuth').getGoogleAccessTokenFromChrome
+  const getGoogleAccessTokenFromWebAuthFlow: typeof import('./utils/chromeGoogleAuth').getGoogleAccessTokenFromWebAuthFlow
   const groupBy: typeof import('./utils/groupBy').groupBy
   const h: typeof import('vue').h
   const initial: typeof import('./utils/initial').initial
@@ -129,6 +130,7 @@ declare module 'vue' {
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly getGoogleAccessTokenFromChrome: UnwrapRef<typeof import('./utils/chromeGoogleAuth')['getGoogleAccessTokenFromChrome']>
+    readonly getGoogleAccessTokenFromWebAuthFlow: UnwrapRef<typeof import('./utils/chromeGoogleAuth')['getGoogleAccessTokenFromWebAuthFlow']>
     readonly groupBy: UnwrapRef<typeof import('./utils/groupBy')['groupBy']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly initial: UnwrapRef<typeof import('./utils/initial')['initial']>

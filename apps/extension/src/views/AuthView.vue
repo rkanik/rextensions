@@ -6,8 +6,13 @@ const loading = ref(false)
 
 const authErrorMessage = (error: unknown) => {
   const message = error instanceof Error ? error.message : 'Sign in failed'
-  if (message.includes('OAuth2') || message.includes('bad client')) {
-    return 'OAuth client misconfigured. Set VITE_CHROME_OAUTH_CLIENT_ID and rebuild.'
+  if (
+    message.includes('OAuth2') ||
+    message.includes('bad client') ||
+    message.includes('VITE_GOOGLE_WEB_OAUTH_CLIENT_ID') ||
+    message.includes('VITE_CHROME_OAUTH_CLIENT_ID')
+  ) {
+    return 'OAuth client misconfigured. Set VITE_CHROME_OAUTH_CLIENT_ID and VITE_GOOGLE_WEB_OAUTH_CLIENT_ID, then rebuild.'
   }
   if (message.includes('The user did not approve') || message.includes('canceled')) {
     return 'Sign in canceled'

@@ -62,9 +62,10 @@ npm run deploy:web
 
 1. Build and load unpacked from `apps/extension/dist`, copy the Extension ID.
 2. Google Cloud Console → OAuth client type **Chrome extension** → paste Extension ID.
-3. Set `VITE_CHROME_OAUTH_CLIENT_ID` in `apps/extension/.env`, rebuild, reload.
-4. Firebase Auth → enable Google; authorized domains as needed.
-5. Deploy [`firestore.rules`](firestore.rules).
+3. Set `VITE_CHROME_OAUTH_CLIENT_ID` in `apps/extension/.env`.
+4. Create a second OAuth client type **Web application**. Authorized redirect URI (no trailing slash): `https://YOUR_EXTENSION_ID.chromiumapp.org`. Set `VITE_GOOGLE_WEB_OAUTH_CLIENT_ID` (required for Arc/Brave; Chrome can use either path).
+5. Rebuild, reload. Firebase Auth → enable Google; authorized domains as needed.
+6. Deploy [`firestore.rules`](firestore.rules).
 
 ## Site pages
 

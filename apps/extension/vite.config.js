@@ -20,12 +20,19 @@ function injectManifestEnv(mode) {
 
       const env = loadEnv(mode, process.cwd(), '')
       const clientId = env.VITE_CHROME_OAUTH_CLIENT_ID?.trim() ?? ''
+      const webClientId = env.VITE_GOOGLE_WEB_OAUTH_CLIENT_ID?.trim() ?? ''
       const extensionName =
         mode === 'development' ? 'Rextensions (Dev)' : 'Rextensions'
+      const envHint = mode === 'production' ? '.production' : ''
 
       if (!clientId) {
         console.warn(
-          `\n[rextensions] VITE_CHROME_OAUTH_CLIENT_ID is missing (mode=${mode}). Google sign-in will fail until you set it in .env${mode === 'production' ? '.production' : ''} and rebuild.\n`,
+          `\n[rextensions] VITE_CHROME_OAUTH_CLIENT_ID is missing (mode=${mode}). Google sign-in will fail until you set it in .env${envHint} and rebuild.\n`,
+        )
+      }
+      if (!webClientId) {
+        console.warn(
+          `\n[rextensions] VITE_GOOGLE_WEB_OAUTH_CLIENT_ID is missing (mode=${mode}). Arc/Brave Google sign-in fallback will fail until you set it in .env${envHint} and rebuild.\n`,
         )
       }
 
