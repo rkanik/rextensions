@@ -34,6 +34,9 @@ const requireAuthOrRun = (action: () => void | Promise<void>) => {
   }
   void action()
 }
+
+const appName =
+  import.meta.env.MODE === 'development' ? 'Rextensions (Dev)' : 'Rextensions'
 </script>
 
 <template>
@@ -42,8 +45,8 @@ const requireAuthOrRun = (action: () => void | Promise<void>) => {
       class="flex items-center justify-between flex-none h-12 px-4 border-b dark:bg-neutral-900"
     >
       <RouterLink to="/" class="flex items-center flex-none gap-2">
-        <img src="/logo.png" alt="Rextensions" class="w-6 h-6" />
-        <h1 class="text-base font-semibold">Rextensions</h1>
+        <img src="/logo.png" :alt="appName" class="w-6 h-6" />
+        <h1 class="text-base font-semibold">{{ appName }}</h1>
       </RouterLink>
 
       <div class="flex flex-none">
