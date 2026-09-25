@@ -1,0 +1,27 @@
+{
+  "user": {
+    "login": "rkanik",
+    "name": "Md Rasel Khandkar",
+    "bio": "Senior Software Engineer at Encoder IT Limited",
+    "company": "Encoder IT Limited",
+    "location": "Dhaka, Bangladesh",
+    "blog": "https://rkanik.vercel.app",
+    "html_url": "https://github.com/rkanik",
+    "avatar_url": "https://avatars.githubusercontent.com/u/30260735?v=4",
+    "hireable": true,
+    "public_repos": 103,
+    "followers": 20,
+    "created_at": "2017-07-18T10:59:32Z"
+  },
+  "repo": {
+    "full_name": "rkanik/rextensions",
+    "html_url": "https://github.com/rkanik/rextensions",
+    "description": "Manage and sync your Chrome extensions across browsers",
+    "language": "Vue",
+    "stargazers_count": 0,
+    "forks_count": 0,
+    "open_issues_count": 0,
+    "default_branch": "main",
+    "license": "MIT"
+  }
+}

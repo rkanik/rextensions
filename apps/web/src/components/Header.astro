@@ -1,0 +1,53 @@
+---
+import { navCommunity, navProduct, siteConfig } from '../lib/site'
+
+const cws = siteConfig.cwsUrl
+const github = `https://github.com/${siteConfig.githubRepo}`
+---
+
+<header class="sticky top-0 z-40 border-b border-ink/8 bg-cloud/85 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="/" class="font-display text-lg font-bold tracking-tight text-ink hover:text-steel-deep transition-colors">
+      {siteConfig.name}
+    </a>
+    <nav class="hidden items-center gap-6 text-sm font-semibold text-slate md:flex" aria-label="Primary">
+      {navProduct.map((item) => (
+        <a href={item.href} class="hover:text-steel-deep transition-colors">{item.label}</a>
+      ))}
+      {navCommunity.slice(0, 3).map((item) => (
+        <a href={item.href} class="hover:text-steel-deep transition-colors">{item.label}</a>
+      ))}
+    </nav>
+    <div class="flex items-center gap-2">
+      <a
+        href={github}
+        class="hidden sm:inline-flex rounded-md px-3 py-1.5 text-sm font-semibold text-slate hover:text-ink transition-colors"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        GitHub
+      </a>
+      {
+        cws ? (
+          <a
+            href={cws}
+            class="inline-flex rounded-md bg-steel px-3 py-1.5 text-sm font-semibold text-white hover:bg-steel-bright transition-colors"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Add to Chrome
+          </a>
+        ) : (
+          <a
+            href={github}
+            class="inline-flex rounded-md bg-steel px-3 py-1.5 text-sm font-semibold text-white hover:bg-steel-bright transition-colors"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Get the code
+          </a>
+        )
+      }
+    </div>
+  </div>
+</header>

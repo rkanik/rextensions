@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+import FinalCTA from '../components/FinalCTA.astro'
+
+const steps = [
+  {
+    title: 'Install Rextensions',
+    body: 'Load the built extension from apps/extension/dist (Load unpacked) while developing, or install from the Chrome Web Store when the listing is live. Pin it to the toolbar for one-click access.',
+  },
+  {
+    title: 'Review your installed set',
+    body: 'Open the popup. Enabled and disabled extensions appear in groups. Search to find a tool quickly. Toggle or remove as needed — no account required for these actions.',
+  },
+  {
+    title: 'Export a snapshot (optional)',
+    body: 'Use Export to download JSON of your current installed list. Keep the file with your dotfiles, pass it to a colleague, or archive it before a browser reset.',
+  },
+  {
+    title: 'Or back up with Google',
+    body: 'Sign in with Google from the menu. Choose Backup to write your list to your personal cloud document. Sign-in is only for backup and restore — local manage/export/import still work signed out.',
+  },
+  {
+    title: 'On another browser, restore or import',
+    body: 'Install Rextensions again. Import your JSON file, or sign in and Restore. Either path creates a sync list showing what is not installed yet.',
+  },
+  {
+    title: 'Open Store for each missing extension',
+    body: 'Click a missing item or Open Store. Finish install in the Chrome Web Store. Repeat until the sync list shows everything you need. You stay in control of every install.',
+  },
+]
+---
+
+<BaseLayout
+  title="How it works"
+  description="Step-by-step: install Rextensions, manage extensions, export or Google backup, restore a sync list, and open the Chrome Web Store for missing tools."
+  path="/how-it-works"
+>
+  <PageHero
+    title="How it works"
+    lead="A short path from messy chrome://extensions tabs to a list you can move between browsers."
+  />
+  <ol class="mx-auto max-w-3xl list-none px-4 py-16 sm:px-6 space-y-12">
+    {
+      steps.map((s, i) => (
+        <li class="flex gap-5">
+          <span class="font-display text-3xl font-bold text-steel/35 tabular-nums w-10 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h2 class="font-display text-2xl font-bold text-ink">{s.title}</h2>
+            <p class="mt-2 text-slate leading-relaxed">{s.body}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="mx-auto max-w-3xl px-4 pb-16 sm:px-6 text-slate">
+    <p>
+      Related: <a href="/features" class="font-semibold text-steel-deep">Features</a>
+      · <a href="/faq" class="font-semibold text-steel-deep">FAQ</a>
+      · <a href="/contribute" class="font-semibold text-steel-deep">Contribute</a>
+    </p>
+  </div>
+  <FinalCTA />
+</BaseLayout>

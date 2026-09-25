@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+import FinalCTA from '../components/FinalCTA.astro'
+import { absoluteUrl } from '../lib/site'
+
+const faqs = [
+  {
+    q: 'What is Rextensions?',
+    a: 'Rextensions is a Chrome Manifest V3 extension for managing installed extensions, exporting and importing sync lists, and optionally backing up your list with Google so you can restore it on another browser.',
+  },
+  {
+    q: 'Do I need a Google account?',
+    a: 'No. Manage, search, enable/disable, remove, export, and import all work without signing in. Google is only required for cloud Backup and Restore.',
+  },
+  {
+    q: 'Does restore automatically install missing extensions?',
+    a: 'No. Restore creates a sync list. You open the Chrome Web Store (or homepage) for each missing extension and install yourself.',
+  },
+  {
+    q: 'How is this different from chrome://extensions?',
+    a: 'chrome://extensions is the system page for one browser profile. Rextensions adds a compact popup, search, sync lists, JSON export/import, and optional cloud backup so you can recreate a toolkit on another profile or machine.',
+  },
+  {
+    q: 'Can I sync across browsers?',
+    a: 'Yes for Chromium-based workflows. Export a JSON file or use Google backup, then import or restore on the other browser where Rextensions is installed. Auto-install is intentionally not supported.',
+  },
+  {
+    q: 'What does a sync list contain?',
+    a: 'Metadata for extensions from an import or cloud restore: names, ids, and related fields so Rextensions can tell what is already installed versus missing.',
+  },
+  {
+    q: 'Are icons included in exports and backups?',
+    a: 'Exports try to embed icons as base64 when possible. Cloud backups may omit icons if the payload exceeds size limits; you still get the extension list.',
+  },
+  {
+    q: 'Which permissions are required?',
+    a: 'management, storage, tabs, and identity, plus host access to Google and Firebase APIs used for Auth and Firestore. Details are on the Privacy page.',
+  },
+  {
+    q: 'Where is cloud data stored?',
+    a: 'In Firebase Firestore under backups/{yourUserId}, readable and writable only by you according to the published security rules.',
+  },
+  {
+    q: 'Is Rextensions open source?',
+    a: 'Yes. The repository is public on GitHub under the MIT license. See the Contribute page for how to help.',
+  },
+  {
+    q: 'Does it work on Edge or Brave?',
+    a: 'Chromium browsers that support comparable extension APIs may work for local features, but Rextensions is developed and tested primarily for Chrome MV3. Cloud auth uses Chrome Identity patterns.',
+  },
+  {
+    q: 'How do I report a bug?',
+    a: 'Open a GitHub issue on the rkanik/rextensions repository. Include browser version, extension version, and steps to reproduce. See Contact and Contribute.',
+  },
+  {
+    q: 'Will there be a Chrome Web Store listing?',
+    a: 'A Store listing may be published separately. Until then, you can build from source and Load unpacked from apps/extension/dist, or follow the repository README.',
+  },
+  {
+    q: 'Who builds Rextensions?',
+    a: 'Md Rasel Khandkar (GitHub: rkanik). See the Developer page for profile links.',
+  },
+]
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: f.a,
+    },
+  })),
+  url: absoluteUrl('/faq'),
+}
+---
+
+<BaseLayout
+  title="FAQ"
+  description="Frequently asked questions about Rextensions: accounts, restore behavior, permissions, sync lists, open source, and Chrome Web Store."
+  path="/faq"
+  jsonLd={jsonLd}
+>
+  <PageHero title="FAQ" lead="Straight answers about sync, backup, permissions, and what restore does not do." />
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 space-y-8">
+    {
+      faqs.map((f) => (
+        <section class="border-b border-ink/8 pb-8">
+          <h2 class="font-display text-xl font-bold text-ink">{f.q}</h2>
+          <p class="mt-3 text-slate leading-relaxed">{f.a}</p>
+        </section>
+      ))
+    }
+  </div>
+  <FinalCTA />
+</BaseLayout>

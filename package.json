@@ -1,62 +1,23 @@
 {
-  "name": "rextensions",
+  "name": "rextensions-monorepo",
+  "private": true,
   "version": "1.1.0",
-  "description": "Manage and sync your Chrome extensions across browsers",
-  "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
-    "preview": "vite preview",
-    "deploy": "./deploy.sh"
-  },
-  "dependencies": {
-    "@vee-validate/zod": "^4.15.1",
-    "@vueuse/core": "^13.9.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "dayjs": "^1.11.13",
-    "firebase": "^12.12.0",
-    "lucide-vue-next": "^1.0.0",
-    "pinia": "^3.0.3",
-    "reka-ui": "^2.9.6",
-    "tailwind-merge": "^3.3.1",
-    "tw-animate-css": "^1.3.7",
-    "vee-validate": "^4.15.1",
-    "vue": "^3.4.0",
-    "vue-router": "^4.5.1",
-    "vue-sonner": "^2.0.8",
-    "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "@iconify-json/lucide": "^1.2.63",
-    "@tailwindcss/vite": "^4.1.12",
-    "@tsconfig/node22": "^22.0.2",
-    "@types/chrome": "^0.1.4",
-    "@types/node": "^22.16.5",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "@vue/eslint-config-typescript": "^14.6.0",
-    "@vue/tsconfig": "^0.7.0",
-    "eslint": "^9.31.0",
-    "eslint-plugin-vue": "~10.3.0",
-    "jiti": "^2.4.2",
-    "npm-run-all2": "^8.0.4",
-    "prettier": "3.6.2",
-    "tailwindcss": "^4.1.12",
-    "typescript": "~5.8.0",
-    "unplugin-auto-import": "^20.0.0",
-    "unplugin-icons": "^22.2.0",
-    "unplugin-vue-components": "^29.0.0",
-    "vite": "^7.1.3",
-    "vite-plugin-vue-devtools": "^8.0.0",
-    "vue-tsc": "^3.0.4"
-  },
-  "keywords": [
-    "vue",
-    "rextensions",
-    "chrome-extension",
-    "extension-manager"
+  "description": "Rextensions monorepo — Chrome extension + marketing site",
+  "workspaces": [
+    "apps/*"
   ],
-  "author": "",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:extension": "npm run build -w @rextensions/extension",
+    "build:web": "npm run build -w @rextensions/web",
+    "dev:extension": "npm run dev -w @rextensions/extension",
+    "dev:web": "npm run dev -w @rextensions/web",
+    "preview:web": "npm run preview -w @rextensions/web",
+    "deploy:web": "npm run build:web && firebase deploy --only hosting",
+    "deploy:extension": "npm run deploy -w @rextensions/extension"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "license": "MIT"
 }

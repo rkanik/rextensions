@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+import { getGitHubRepo } from '../lib/github'
+
+const repo = await getGitHubRepo()
+const issues = `${repo.html_url}/issues`
+const fork = `${repo.html_url}/fork`
+---
+
+<BaseLayout
+  title="Contribute"
+  description="Contribute to Rextensions: fork the monorepo, work on the Chrome extension or marketing site, open issues, and submit pull requests."
+  path="/contribute"
+>
+  <PageHero
+    title="Contribute"
+    lead="Rextensions is open source. Help improve the extension, docs, or marketing site."
+  />
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 space-y-12 text-slate leading-relaxed">
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Repository</h2>
+      <p class="mt-3">
+        Source lives at
+        <a href={repo.html_url} class="font-semibold text-steel-deep" rel="noopener noreferrer" target="_blank">{repo.full_name}</a>
+        ({repo.language}, license {repo.license}). Default branch: {repo.default_branch}.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={repo.html_url} class="rounded-md bg-steel px-4 py-2 text-sm font-bold text-white hover:bg-steel-bright" rel="noopener noreferrer" target="_blank">Star / browse</a>
+        <a href={fork} class="rounded-md border border-ink/15 px-4 py-2 text-sm font-bold text-ink hover:border-steel/40" rel="noopener noreferrer" target="_blank">Fork</a>
+        <a href={issues} class="rounded-md border border-ink/15 px-4 py-2 text-sm font-bold text-ink hover:border-steel/40" rel="noopener noreferrer" target="_blank">Open an issue</a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Monorepo layout</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li><code class="text-ink">apps/extension</code> — Chrome MV3 popup (Vue 3 + Vite). Load <code class="text-ink">apps/extension/dist</code> in Chrome.</li>
+        <li><code class="text-ink">apps/web</code> — Astro marketing site (this site). Static output for Firebase Hosting.</li>
+        <li><code class="text-ink">firestore.rules</code> — security rules for cloud backups at repo root.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Setup</h2>
+      <ol class="mt-3 list-decimal space-y-2 pl-5">
+        <li>Fork and clone the repository.</li>
+        <li>From the repo root run <code class="text-ink">npm install</code>.</li>
+        <li>For the extension: copy <code class="text-ink">apps/extension/.env.example</code> to <code class="text-ink">.env</code>, set <code class="text-ink">VITE_CHROME_OAUTH_CLIENT_ID</code> if testing Google auth, then <code class="text-ink">npm run build:extension</code>.</li>
+        <li>For the site: copy <code class="text-ink">apps/web/.env.example</code> as needed, then <code class="text-ink">npm run dev:web</code>.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Pull request checklist</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li>One focused change per PR when possible.</li>
+        <li>Keep extension popup compact; do not break Manifest V3 permissions without discussion.</li>
+        <li>Run the relevant build (<code class="text-ink">build:extension</code> or <code class="text-ink">build:web</code>) before pushing.</li>
+        <li>Describe why the change exists and how you tested it.</li>
+        <li>Never commit secrets (<code class="text-ink">.env</code>, OAuth client secrets).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Issue etiquette</h2>
+      <p class="mt-3">
+        Search existing issues first. Include OS, Chrome version, extension version, and clear reproduction steps.
+        Feature ideas are welcome — explain the user problem, not only the API shape.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Code of conduct (lite)</h2>
+      <p class="mt-3">
+        Be respectful. Assume good intent. No harassment, spam, or malicious PRs. Maintainers may close issues or
+        decline contributions that put users at risk (for example, auto-install without consent).
+      </p>
+    </section>
+
+    <p>
+      Meet the maintainer on the <a href="/developer" class="font-semibold text-steel-deep">Developer</a> page
+      or <a href="/contact" class="font-semibold text-steel-deep">Contact</a>.
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rextensions-1d87a.web.app/sitemap-index.xml

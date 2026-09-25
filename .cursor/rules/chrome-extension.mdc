@@ -1,6 +1,6 @@
 ---
 description: Chrome MV3 extension constraints for Rextensions
-globs: public/manifest.json,src/background.ts,vite.config.js,src/utils/chromeGoogleAuth.ts,src/**/*.ts,src/**/*.vue
+globs: apps/extension/public/manifest.json,apps/extension/src/background.ts,apps/extension/vite.config.js,apps/extension/src/utils/chromeGoogleAuth.ts,apps/extension/src/**/*.ts,apps/extension/src/**/*.vue
 alwaysApply: false
 ---
 
@@ -12,5 +12,5 @@ alwaysApply: false
 - Persist UI path / remote lists via `chrome.storage.local`, not `localStorage`.
 - Auth is Google-only: `chrome.identity.getAuthToken` → Firebase `signInWithCredential` (`chromeGoogleAuth.ts`). Rebuild after changing OAuth client id.
 - Backup/restore syncs an extension **list** (Open Store for missing); does not auto-install.
-- After code changes: rebuild, then Reload the unpacked extension in `chrome://extensions`.
+- After code changes: `npm run build:extension`, then Reload unpacked from `apps/extension/dist`.
 - Do not add Node-only APIs to popup/background runtime code.

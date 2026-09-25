@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { getGitHubUser, getGitHubRepo } from '../lib/github'
+import { absoluteUrl, siteConfig } from '../lib/site'
+
+const user = await getGitHubUser()
+const repo = await getGitHubRepo()
+const joined = new Date(user.created_at).getFullYear()
+const blog = user.blog?.startsWith('http') ? user.blog : user.blog ? `https://${user.blog}` : ''
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: user.name,
+  url: absoluteUrl('/developer'),
+  image: user.avatar_url,
+  jobTitle: user.bio,
+  worksFor: user.company
+    ? {
+        '@type': 'Organization',
+        name: user.company.replace(/^@/, ''),
+      }
+    : undefined,
+  address: user.location
+    ? {
+        '@type': 'PostalAddress',
+        addressLocality: user.location,
+      }
+    : undefined,
+  sameAs: [user.html_url, blog].filter(Boolean),
+}
+---
+
+<BaseLayout
+  title="Developer"
+  description={`${user.name} (@${user.login}) — creator of Rextensions. ${user.bio}`}
+  path="/developer"
+  jsonLd={jsonLd}
+>
+  <section class="atmosphere noise">
+    <div class="mx-auto flex max-w-3xl flex-col items-start gap-8 px-4 py-16 sm:px-6 sm:py-24 sm:flex-row sm:items-center">
+      <img
+        src={user.avatar_url}
+        alt={user.name}
+        width="160"
+        height="160"
+        class="h-36 w-36 rounded-2xl object-cover shadow-lg reveal"
+      />
+      <div>
+        <p class="text-sm font-bold uppercase tracking-[0.15em] text-steel reveal">Developer</p>
+        <h1 class="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl reveal-delay">
+          {user.name}
+        </h1>
+        <p class="mt-2 text-lg text-slate reveal-delay">@{user.login}</p>
+        <p class="mt-4 max-w-md text-slate leading-relaxed reveal-delay-2">{user.bio}</p>
+        <ul class="mt-4 space-y-1 text-sm text-slate reveal-delay-2">
+          {user.company && <li>{user.company}</li>}
+          {user.location && <li>{user.location}</li>}
+          <li>On GitHub since {joined} · {user.public_repos} public repos · {user.followers} followers</li>
+          {user.hireable && <li>Open to opportunities</li>}
+        </ul>
+        <div class="mt-6 flex flex-wrap gap-3 reveal-delay-2">
+          <a
+            href={user.html_url}
+            class="rounded-md bg-steel px-4 py-2 text-sm font-bold text-white hover:bg-steel-bright"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub profile
+          </a>
+          {
+            blog && (
+              <a
+                href={blog}
+                class="rounded-md border border-ink/15 px-4 py-2 text-sm font-bold text-ink hover:border-steel/40"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Personal site
+              </a>
+            )
+          }
+          <a href="/contact" class="rounded-md px-4 py-2 text-sm font-bold text-steel-deep hover:text-steel">
+            Contact
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <h2 class="font-display text-2xl font-bold text-ink">Why {siteConfig.name}</h2>
+    <p class="mt-4 text-slate leading-relaxed">
+      Moving between machines and profiles should not mean rebuilding your Chrome toolkit from memory.
+      {siteConfig.name} keeps management local-first, adds export/import for offline handoff, and offers optional
+      Google backup so a restore becomes a checklist — not a silent install spree.
+    </p>
+    <p class="mt-4 text-slate leading-relaxed">
+      The project ships as a monorepo: the Vue popup in <code class="text-ink">apps/extension</code> and this Astro
+      site in <code class="text-ink">apps/web</code>. Latest public repo stats for
+      <a href={repo.html_url} class="font-semibold text-steel-deep" rel="noopener noreferrer" target="_blank">{repo.full_name}</a>:
+      {repo.stargazers_count} stars · {repo.forks_count} forks · {repo.open_issues_count} open issues.
+    </p>
+    <p class="mt-8">
+      <a href="/contribute" class="font-semibold text-steel-deep hover:text-steel">Contribute to the project →</a>
+    </p>
+  </section>
+</BaseLayout>

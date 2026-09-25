@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+import FinalCTA from '../components/FinalCTA.astro'
+
+const sections = [
+  {
+    title: 'Live inventory of installed extensions',
+    body: 'When you open the popup, Rextensions reads your installed extensions through Chrome’s Management API. You get a live view split into Enabled and Disabled groups so status is obvious at a glance. Each card shows the extension icon and name, with actions available from click or context menu.',
+  },
+  {
+    title: 'Search that stays local',
+    body: 'Filter by name or description across local extensions and sync-list items. Useful when you run dozens of tools and only remember a keyword. Search never leaves the browser — it filters the lists already loaded in the popup.',
+  },
+  {
+    title: 'Enable, disable, and remove',
+    body: 'Toggle an extension on or off without opening chrome://extensions. Remove (uninstall) from the context menu when you are cleaning house. Disabled cards appear dimmed so you can scan what is idle versus active.',
+  },
+  {
+    title: 'Sync lists from import or cloud restore',
+    body: 'A sync list is a named collection of extensions you care about on this machine — typically from a JSON import or a cloud restore. Each list gets a color marker, a label (filename or “Cloud Backup”), and a relative time. Items already installed hide from the “not installed” count so you focus on gaps.',
+  },
+  {
+    title: 'Multi-list compare with color dots',
+    body: 'Keep more than one sync list at once — for example a work export and a personal backup. Colored dots on local cards show when an installed extension also appears in one or more lists. Delete a sync list anytime without touching installed extensions.',
+  },
+  {
+    title: 'Open Store for missing extensions',
+    body: 'Rextensions does not auto-install. For missing items you open the Chrome Web Store (or the extension homepage URL when available) in a new tab and install yourself. That keeps Store policies, permissions prompts, and human judgment in the loop.',
+  },
+  {
+    title: 'Export JSON with embedded icons',
+    body: 'Export downloads your current installed list as JSON. Where possible, icons are embedded as base64 so the file stays useful offline. Name the file before download. Hand the file to a teammate or move it to another Chromium profile.',
+  },
+  {
+    title: 'Import validated JSON',
+    body: 'Import validates structure before merge. Valid lists become sync lists stored in chrome.storage.local. This path works without Google sign-in and is ideal for air-gapped handoff or non-cloud workflows.',
+  },
+  {
+    title: 'Google cloud backup and restore',
+    body: 'Sign in with Google through Chrome Identity and Firebase Auth. Backup writes your installed list to backups/{uid} in Firestore. Oversized payloads automatically drop icons and still succeed with a clear message. Restore creates a sync list labeled Cloud Backup. Account recovery is through Google — the extension never stores a separate password.',
+  },
+  {
+    title: 'Dark and light themes',
+    body: 'A theme toggle persists in extension storage so your popup matches how you work. Layout stays compact (~400×500) for toolbar use, with an option to open the UI in a full tab when you need more room.',
+  },
+]
+---
+
+<BaseLayout
+  title="Features"
+  description="Explore Rextensions features: manage Chrome extensions, search, sync lists, JSON export/import, and optional Google cloud backup without auto-install."
+  path="/features"
+>
+  <PageHero
+    title="Features"
+    lead="Everything in the popup, explained. Local management first. Cloud backup only when you want it."
+  />
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 space-y-14">
+    {
+      sections.map((s) => (
+        <section>
+          <h2 class="font-display text-2xl font-bold text-ink">{s.title}</h2>
+          <p class="mt-3 text-slate leading-relaxed">{s.body}</p>
+        </section>
+      ))
+    }
+    <p class="text-slate">
+      Next: <a href="/how-it-works" class="font-semibold text-steel-deep hover:text-steel">How it works</a>
+      · <a href="/faq" class="font-semibold text-steel-deep hover:text-steel">FAQ</a>
+      · <a href="/privacy" class="font-semibold text-steel-deep hover:text-steel">Privacy</a>
+    </p>
+  </article>
+  <FinalCTA />
+</BaseLayout>

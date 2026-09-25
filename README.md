@@ -1,131 +1,88 @@
-# Extension Manager Chrome Extension
+# Rextensions
 
-A Chrome extension built with Vue.js and Tailwind CSS that allows you to manage your installed extensions and sync them across different browsers.
+Monorepo for **Rextensions** — a Chrome MV3 extension that manages installed extensions, export/import sync lists, and optional Google cloud backup — plus the marketing site.
 
-## Features
+## Packages
 
-- **Unified Extension Management**: Single list showing all your extensions with dynamic actions
-- **Smart Detection**: Automatically detects which extensions are installed vs. available
-- **Export/Import**: Export your extension list to JSON and import it on other browsers
-- **Cloud Backup / Restore**: Sign in with Google to sync your extension list across Chromium browsers (Open Store for missing ones — restore does not auto-install)
-- **Search**: Search through your extensions by name or description
-- **Modern UI**: Clean, responsive interface built with Tailwind CSS
+| Path | Package | Role |
+|------|---------|------|
+| `apps/extension` | `@rextensions/extension` | Chrome extension (Vue 3 + Vite). Load **`apps/extension/dist`** in Chrome. |
+| `apps/web` | `@rextensions/web` | Astro SSG marketing site (SEO, Firebase Hosting). |
 
-## Setup
+## Quick start
 
-1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Copy `.env.example` to `.env` and set `VITE_CHROME_OAUTH_CLIENT_ID` (see **Local Google sign-in** below).
+### Extension
 
-3. Build the extension:
 ```bash
-npm run build
+cp apps/extension/.env.example apps/extension/.env
+# set VITE_CHROME_OAUTH_CLIENT_ID for Google backup/restore
+npm run build:extension
 ```
 
-4. Load the extension in Chrome:
-   - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - **Select the `dist` folder** (not the project root)
+Load unpacked: `chrome://extensions` → Developer mode → Load unpacked → select **`apps/extension/dist`**.
 
-### Local Google sign-in
+Watch mode: `npm run dev:extension`
 
-1. Build and load unpacked from `dist/`, then copy the **Extension ID** from `chrome://extensions`.
-2. Google Cloud Console (same project as Firebase) → Credentials → Create OAuth client → type **Chrome extension** → paste that Extension ID.
-3. Set `VITE_CHROME_OAUTH_CLIENT_ID` in `.env`, rebuild, reload the extension.
-4. Firebase Console → Authentication → enable **Google** provider.
-5. Firebase → Authentication → Settings → Authorized domains: add `chrome-extension://YOUR_EXTENSION_ID` if prompted.
-6. Deploy [`firestore.rules`](firestore.rules) so only `backups/{uid}` is readable/writable by that user.
-7. Open the popup → Sign in with Google → test Backup / Restore.
+### Marketing site
 
-Moving the project folder can change the unpacked Extension ID; update the OAuth client if that happens.
-
-## Usage
-
-### Managing Your Extensions
-- Click on the extension icon in your browser toolbar
-- View your currently installed extensions and any imported / restored sync lists
-- **For installed extensions**: Use "Enable/Disable" toggle and "Remove" button
-- **For sync-list extensions**: Use "Open Store" to install from Chrome Web Store
-- Imported / restored lists persist in `chrome.storage.local`
-
-### Cloud Backup / Restore
-- Sign in with Google (menu → Sign in with Google)
-- **Backup** saves your installed extension list to Firestore
-- **Restore** loads that list as a local sync list (not auto-install). Open Store for each missing extension
-- Account recovery is via your Google Account (no email/password in the extension)
-
-### Exporting/Importing Extensions
-- Click "Export" to download a JSON file with your currently installed extensions
-- Click "Import" and select a previously exported JSON file to add a sync list
-- Useful for non-Chromium browsers or offline transfer
-
-## Development
-
-To run in development mode:
 ```bash
-npm run dev
+cp apps/web/.env.example apps/web/.env
+# set PUBLIC_SITE_URL to your Hosting URL or custom domain
+npm run dev:web
 ```
 
-## Deployment
+Production build: `npm run build:web` → output in `apps/web/dist`.
 
-The extension is built to the `dist/` directory which contains all necessary files:
-- `manifest.json` - Extension configuration
-- `popup.html` - Main popup interface
-- `popup.js` - Vue application bundle
-- `popup.css` - Tailwind CSS styles
-- `background.js` - Background service worker
-- `Icon 128x128.png` - Extension icon
+Deploy Hosting (requires [Firebase CLI](https://firebase.google.com/docs/cli) logged into project `rextensions-1d87a`):
 
-**Important**: When loading the extension in Chrome, select the `dist/` folder, not the project root. This ensures optimal performance and avoids loading unnecessary files.
-
-## Permissions
-
-This extension requires the following permissions:
-- `management`: To manage installed extensions (enable/disable/uninstall)
-- `tabs`: To open Chrome Web Store pages and related chrome:// pages
-- `storage`: To save imported / restored sync lists locally
-- `identity`: Google sign-in via Chrome Identity API
-- Host access to Google / Firebase APIs for Auth and Firestore
-
-## Technologies Used
-
-- Vue.js 3 (Composition API)
-- Tailwind CSS
-- Vite (Build tool)
-- Chrome Extension APIs
-
-## File Structure
-
-```
-├── src/
-│   ├── App.vue          # Main Vue component
-│   ├── popup.js         # Vue app entry point
-│   ├── background.js    # Background service worker
-│   └── style.css        # Global styles with Tailwind
-├── public/              # Static files (copied to dist)
-│   ├── manifest.json    # Extension configuration
-│   └── Icon 128x128.png # Extension icon
-├── dist/                # Built extension (load this in Chrome)
-│   ├── manifest.json    # Extension configuration
-│   ├── popup.html       # Popup entry point
-│   ├── popup.js         # Vue app bundle
-│   ├── popup.css        # Tailwind styles
-│   ├── background.js    # Background service worker
-│   └── Icon 128x128.png # Extension icon
-├── popup.html           # Source popup HTML
-├── package.json         # Dependencies and scripts
-├── vite.config.js       # Vite configuration
-├── tailwind.config.js   # Tailwind configuration
-└── postcss.config.js    # PostCSS configuration
+```bash
+npm run deploy:web
 ```
 
-## Notes
+## Google Search Console
 
-- The extension uses Chrome's management API to interact with installed extensions
-- For demo purposes, some functionality is simulated when Chrome APIs are not available
-- The extension is designed to work with Chrome's Manifest V3
-- Files in the `public/` directory are automatically copied to `dist/` during build
+1. Deploy the site to a stable HTTPS URL (`PUBLIC_SITE_URL`).
+2. Add the property in [Google Search Console](https://search.google.com/search-console).
+3. Submit the sitemap: `https://<your-host>/sitemap-index.xml`
+4. `robots.txt` already points at that sitemap for the default Hosting URL; update `apps/web/public/robots.txt` if the domain changes.
+
+## Features (extension)
+
+- Unified list of installed extensions with enable / disable / remove
+- Search by name or description
+- Export / import JSON sync lists
+- Optional Google backup / restore (restore does **not** auto-install — Open Store for missing)
+- Dark / light theme
+
+## Local Google sign-in (extension)
+
+1. Build and load unpacked from `apps/extension/dist`, copy the Extension ID.
+2. Google Cloud Console → OAuth client type **Chrome extension** → paste Extension ID.
+3. Set `VITE_CHROME_OAUTH_CLIENT_ID` in `apps/extension/.env`, rebuild, reload.
+4. Firebase Auth → enable Google; authorized domains as needed.
+5. Deploy [`firestore.rules`](firestore.rules).
+
+## Site pages
+
+`/`, `/features`, `/how-it-works`, `/privacy`, `/faq`, `/changelog`, `/contribute`, `/developer`, `/contact`
+
+Developer and contact pages pull public GitHub profile data for `rkanik` at build time (with a checked-in fallback).
+
+## Scripts (root)
+
+| Script | Action |
+|--------|--------|
+| `npm run build` | Build all workspaces |
+| `npm run build:extension` | Extension only |
+| `npm run build:web` | Marketing site only |
+| `npm run dev:extension` | Extension watch build |
+| `npm run dev:web` | Astro dev server |
+| `npm run deploy:web` | Build web + `firebase deploy --only hosting` |
+
+## License
+
+MIT — see [LICENSE](LICENSE).

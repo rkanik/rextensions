@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import FinalCTA from '../components/FinalCTA.astro'
+import { absoluteUrl, siteConfig } from '../lib/site'
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: siteConfig.name,
+    applicationCategory: 'BrowserApplication',
+    operatingSystem: 'Chrome',
+    description: siteConfig.description,
+    url: absoluteUrl('/'),
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    author: {
+      '@type': 'Person',
+      name: 'Md Rasel Khandkar',
+      url: 'https://github.com/rkanik',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: siteConfig.name,
+    url: absoluteUrl('/'),
+    logo: absoluteUrl('/logo.png'),
+    sameAs: [`https://github.com/${siteConfig.githubRepo}`],
+  },
+]
+
+const features = [
+  {
+    title: 'Manage without leaving the toolbar',
+    body: 'See enabled and disabled extensions in one popup. Search by name or description. Enable, disable, or remove without hunting through chrome://extensions.',
+  },
+  {
+    title: 'Export and import sync lists',
+    body: 'Download your installed list as JSON — icons included when possible. Import on another profile or machine to build a sync list of what you still need.',
+  },
+  {
+    title: 'Cloud backup with Google',
+    body: 'Optional sign-in saves your list to your own Firestore backup. Restore it later as a sync list. Missing extensions open in the Chrome Web Store — nothing installs without you.',
+  },
+]
+---
+
+<BaseLayout
+  title={siteConfig.name}
+  description={siteConfig.description}
+  path="/"
+  jsonLd={jsonLd}
+>
+  <section class="atmosphere noise relative overflow-hidden">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 pb-0 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-2 lg:items-end lg:gap-8">
+      <div class="pb-12 lg:pb-20">
+        <p class="font-display text-sm font-bold uppercase tracking-[0.2em] text-steel reveal">{siteConfig.name}</p>
+        <h1 class="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl reveal-delay">
+          Your Chrome extensions, ready on every browser
+        </h1>
+        <p class="mt-5 max-w-md text-lg text-slate leading-relaxed reveal-delay-2">
+          Manage, export, and restore your extension list — local-first, with optional Google backup.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3 reveal-delay-2">
+          {
+            siteConfig.cwsUrl ? (
+              <a
+                href={siteConfig.cwsUrl}
+                class="inline-flex rounded-md bg-steel px-5 py-2.5 text-sm font-bold text-white hover:bg-steel-bright transition-colors"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Add to Chrome
+              </a>
+            ) : (
+              <a
+                href={`https://github.com/${siteConfig.githubRepo}`}
+                class="inline-flex rounded-md bg-steel px-5 py-2.5 text-sm font-bold text-white hover:bg-steel-bright transition-colors"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Get started on GitHub
+              </a>
+            )
+          }
+          <a
+            href="/features"
+            class="inline-flex rounded-md border border-ink/15 bg-white/60 px-5 py-2.5 text-sm font-bold text-ink hover:border-steel/40 transition-colors"
+          >
+            Explore features
+          </a>
+        </div>
+      </div>
+      <div class="relative reveal-delay min-h-[280px] lg:min-h-[420px]">
+        <div class="absolute inset-x-0 bottom-0 top-8 rounded-t-2xl bg-gradient-to-b from-graphite to-ink shadow-2xl lg:top-0">
+          <div class="flex h-full flex-col items-center justify-center gap-4 px-8 pb-12 pt-10 text-center">
+            <img src="/logofull.png" alt="Rextensions" class="max-h-16 w-auto object-contain opacity-95" width="280" height="64" />
+            <p class="max-w-xs text-sm text-mist/80 leading-relaxed">
+              Toolbar popup for inventory, sync lists, and cloud backup — built for Manifest V3.
+            </p>
+            <img src="/logo.png" alt="" class="mt-2 h-20 w-20 rounded-2xl opacity-90" width="80" height="80" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <h2 class="font-display text-3xl font-bold tracking-tight text-ink">Stop rebuilding your toolkit</h2>
+    <p class="mt-4 max-w-2xl text-slate leading-relaxed">
+      New laptop. Fresh profile. Work browser vs personal browser. Every time you start over, you reopen chrome://extensions,
+      hunt Store pages, and guess what you had installed. Rextensions turns that mess into a list you can search, export,
+      and restore — without auto-installing anything behind your back.
+    </p>
+  </section>
+
+  <section class="border-y border-ink/8 bg-mist/50">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <h2 class="font-display text-3xl font-bold tracking-tight text-ink">Built for real extension hygiene</h2>
+      <p class="mt-3 max-w-2xl text-slate">Three jobs. One popup. Local tools work without an account.</p>
+      <ul class="mt-12 grid gap-12 md:grid-cols-3">
+        {
+          features.map((f) => (
+            <li>
+              <h3 class="font-display text-xl font-bold text-ink">{f.title}</h3>
+              <p class="mt-3 text-slate leading-relaxed">{f.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-10">
+        <a href="/features" class="font-semibold text-steel-deep hover:text-steel">All features →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <h2 class="font-display text-3xl font-bold tracking-tight text-ink">How restore stays in your control</h2>
+    <ol class="mt-10 grid gap-8 sm:grid-cols-3">
+      <li>
+        <p class="font-display text-4xl font-bold text-steel/40">01</p>
+        <h3 class="mt-2 font-display text-lg font-bold">Backup or export</h3>
+        <p class="mt-2 text-sm text-slate leading-relaxed">Save to Google or download JSON from the menu.</p>
+      </li>
+      <li>
+        <p class="font-display text-4xl font-bold text-steel/40">02</p>
+        <h3 class="mt-2 font-display text-lg font-bold">Restore as a sync list</h3>
+        <p class="mt-2 text-sm text-slate leading-relaxed">See which extensions are missing on this browser.</p>
+      </li>
+      <li>
+        <p class="font-display text-4xl font-bold text-steel/40">03</p>
+        <h3 class="mt-2 font-display text-lg font-bold">Open Store yourself</h3>
+        <p class="mt-2 text-sm text-slate leading-relaxed">Install only what you choose. No silent installs.</p>
+      </li>
+    </ol>
+    <p class="mt-10">
+      <a href="/how-it-works" class="font-semibold text-steel-deep hover:text-steel">Full walkthrough →</a>
+    </p>
+  </section>
+
+  <section class="border-t border-ink/8 bg-white/40">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:grid md:grid-cols-2 md:gap-16">
+      <div>
+        <h2 class="font-display text-3xl font-bold tracking-tight text-ink">Privacy-shaped by default</h2>
+        <p class="mt-4 text-slate leading-relaxed">
+          Management, export, and import never need Google. Cloud backup stores only your extension list under your user id.
+          Firestore rules keep that document yours alone.
+        </p>
+        <p class="mt-4">
+          <a href="/privacy" class="font-semibold text-steel-deep hover:text-steel">Read the privacy page →</a>
+        </p>
+      </div>
+      <div class="mt-10 md:mt-0">
+        <h2 class="font-display text-3xl font-bold tracking-tight text-ink">Questions answered</h2>
+        <p class="mt-4 text-slate leading-relaxed">
+          Does restore install extensions? Do I need an account? What permissions does Manifest V3 request?
+        </p>
+        <p class="mt-4">
+          <a href="/faq" class="font-semibold text-steel-deep hover:text-steel">Browse the FAQ →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <FinalCTA />
+</BaseLayout>

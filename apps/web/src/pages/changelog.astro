@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+
+const entries = [
+  {
+    version: '1.1.0',
+    date: '2025-08',
+    notes: [
+      'Google sign-in via Chrome Identity and Firebase Auth for cloud backup and restore.',
+      'Firestore backup document per user with size-aware icon omission.',
+      'Sync lists from import and restore with multi-list color markers.',
+      'Export / import JSON with validation.',
+      'Dark and light themes persisted in extension storage.',
+    ],
+  },
+  {
+    version: '1.0.0',
+    date: 'Initial',
+    notes: [
+      'Manifest V3 popup for listing installed extensions.',
+      'Enable, disable, and remove actions.',
+      'Search across extension names and descriptions.',
+    ],
+  },
+]
+---
+
+<BaseLayout
+  title="Changelog"
+  description="Release notes for Rextensions, the Chrome extension manager with sync lists and optional Google backup."
+  path="/changelog"
+>
+  <PageHero title="Changelog" lead="What shipped in recent versions of Rextensions." />
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 space-y-12">
+    {
+      entries.map((e) => (
+        <section>
+          <h2 class="font-display text-2xl font-bold text-ink">
+            v{e.version}
+            <span class="ml-2 text-base font-semibold text-slate">{e.date}</span>
+          </h2>
+          <ul class="mt-4 list-disc space-y-2 pl-5 text-slate leading-relaxed">
+            {e.notes.map((n) => (
+              <li>{n}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+    <p class="text-slate">
+      Follow development on <a class="font-semibold text-steel-deep" href="/contribute">Contribute</a>
+      or the <a class="font-semibold text-steel-deep" href="https://github.com/rkanik/rextensions" rel="noopener noreferrer" target="_blank">GitHub repository</a>.
+    </p>
+  </div>
+</BaseLayout>

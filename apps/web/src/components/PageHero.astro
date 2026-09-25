@@ -1,0 +1,15 @@
+---
+interface Props {
+  title: string
+  lead?: string
+}
+
+const { title, lead } = Astro.props
+---
+
+<header class="atmosphere noise border-b border-ink/8">
+  <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
+    <h1 class="font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl reveal">{title}</h1>
+    {lead && <p class="mt-4 text-lg text-slate leading-relaxed reveal-delay">{lead}</p>}
+  </div>
+</header>

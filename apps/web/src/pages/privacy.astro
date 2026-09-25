@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PageHero from '../components/PageHero.astro'
+---
+
+<BaseLayout
+  title="Privacy"
+  description="How Rextensions handles permissions, local storage, optional Google sign-in, and Firestore backups of your Chrome extension list."
+  path="/privacy"
+>
+  <PageHero
+    title="Privacy"
+    lead="Plain language about what Rextensions can access and what it stores."
+  />
+  <article class="mx-auto max-w-3xl px-4 py-16 sm:px-6 prose-like space-y-10 text-slate leading-relaxed">
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Summary</h2>
+      <p class="mt-3">
+        Rextensions is a Manifest V3 Chrome extension. Local management, export, and import work without signing in.
+        Optional Google sign-in is used only to back up and restore your extension list. Restore never auto-installs
+        extensions. Cloud data is limited to your own backup document.
+      </p>
+    </section>
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Permissions</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li><strong class="text-ink">management</strong> — list, enable, disable, and uninstall extensions you already control in Chrome.</li>
+        <li><strong class="text-ink">storage</strong> — save sync lists, theme, and UI path in chrome.storage.local.</li>
+        <li><strong class="text-ink">tabs</strong> — open Store pages and chrome://extensions when you ask.</li>
+        <li><strong class="text-ink">identity</strong> — Google sign-in via Chrome Identity for Firebase Auth.</li>
+        <li><strong class="text-ink">Host access</strong> — Google and Firebase endpoints required for Auth and Firestore.</li>
+      </ul>
+    </section>
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Local data</h2>
+      <p class="mt-3">
+        Imported and restored sync lists stay in your browser profile via chrome.storage.local. Theme preference and last
+        route are stored the same way. Export downloads a JSON file to your machine; Rextensions does not upload that
+        file unless you choose Backup while signed in.
+      </p>
+    </section>
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Cloud backup</h2>
+      <p class="mt-3">
+        When you back up, the extension writes your installed extension list to Firestore at <code class="text-ink">backups/&#123;userId&#125;</code>.
+        Security rules allow only the signed-in user to read or write their own document. If the payload is too large,
+        icons may be omitted automatically; the list of extensions still syncs.
+      </p>
+    </section>
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">What we do not do</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5">
+        <li>No extension password accounts — recovery is through your Google Account.</li>
+        <li>No silent install of missing extensions after restore.</li>
+        <li>No reading of your browsing history for sync features.</li>
+        <li>This marketing site is static and does not collect backup data.</li>
+      </ul>
+    </section>
+    <section>
+      <h2 class="font-display text-2xl font-bold text-ink">Contact</h2>
+      <p class="mt-3">
+        Questions about privacy: see <a href="/contact" class="font-semibold text-steel-deep">Contact</a>
+        or open an issue on <a href="/contribute" class="font-semibold text-steel-deep">Contribute</a>.
+      </p>
+    </section>
+  </article>
+</BaseLayout>

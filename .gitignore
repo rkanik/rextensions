@@ -3,9 +3,10 @@ node_modules/
 
 # Build output
 dist/
+apps/*/dist/
 
-# Keep public directory in version control
-!public/
+# Keep public directories in version control
+!**/public/
 
 # Environment files
 .env
@@ -13,6 +14,8 @@ dist/
 .env.production
 .env.local
 .env.*.local
+!.env.example
+!**/.env.example
 
 # Logs
 npm-debug.log*
@@ -37,3 +40,10 @@ pnpm-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Astro
+.astro/
+
+# Firebase
+.firebase/
+firebase-debug.log
